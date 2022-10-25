@@ -1,14 +1,14 @@
 /** 클립보드 복사 */
-export async function copyToClipboard(text: string) {
+export async function copyToClipboard(text: string): Promise<string> {
   if (window.navigator?.clipboard && window.isSecureContext) {
     return new Promise((res, rej) => {
       navigator.clipboard
         .writeText(text)
-        .then((response) => {
-          res(response)
+        .then(() => {
+          res(text)
         })
         .catch((err) => {
-          res(err)
+          rej('error')
         })
     })
   } else {
@@ -20,7 +20,7 @@ export async function copyToClipboard(text: string) {
     El.focus()
     El.select()
     return new Promise((res, rej) => {
-      document.execCommand('copy') ? res(text) : rej()
+      document.execCommand('copy') ? res(text) : rej('error')
       El.remove()
     })
   }
