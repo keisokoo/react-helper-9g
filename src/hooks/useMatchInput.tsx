@@ -12,7 +12,6 @@ type HandleInputFunction<T> = <K extends keyof T>(
 ) => Promise<void>
 
 export interface MatchInputProps<T> {
-  _prefix?: JSX.Element
   inputs: T
   isMatched: boolean
   existInputs: T
