@@ -25,3 +25,45 @@ export async function copyToClipboard(text: string): Promise<string> {
     })
   }
 }
+
+type ObjectWithId = { id: string }
+
+export const getFromStorage = <T>(target: string): T | null => {
+  let onStorage = localStorage.getItem(target)
+  if (onStorage) {
+    return JSON.parse(onStorage) as T
+  } else {
+    return null
+  }
+}
+
+export const appendStorageList = <T extends ObjectWithId>(
+  target: string,
+  value: T,
+  limit?: number
+): T[] => {
+  let onStorage = getFromStorage<T[]>(target)
+  let newList = onStorage
+    ? onStorage.some((item) => item.id === value.id)
+      ? onStorage
+      : [...onStorage, value]
+    : [value]
+  if (limit) {
+    newList = newList.reverse().slice(0, limit).reverse()
+  }
+  localStorage.setItem(target, JSON.stringify(newList))
+  return newList
+}
+export const removeStorageListTarget = <T extends ObjectWithId>(
+  target: string,
+  id: string
+) => {
+  let onStorage = getFromStorage<T[]>(target)
+  let nextList = onStorage
+  if (onStorage) {
+    nextList = onStorage.filter((ft) => ft.id !== id)
+    localStorage.setItem(target, JSON.stringify(nextList))
+    return nextList
+  }
+  return []
+}
