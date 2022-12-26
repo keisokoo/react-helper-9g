@@ -22,8 +22,8 @@ class WheelZoom {
     this.targetElement.onwheel = null
 
     let rec = this.targetElement.getBoundingClientRect()
-    let x = (event.clientX - rec.x) / this.ts.scale
-    let y = (event.clientY - rec.y) / this.ts.scale
+    let pointerX = (event.clientX - rec.left) / this.ts.scale
+    let pointerY = (event.clientY - rec.top) / this.ts.scale
 
     let delta = -event.deltaY
     if (this.ts.scale === this.maxScale && delta > 0) {
@@ -39,8 +39,10 @@ class WheelZoom {
     if (this.ts.scale <= this.minScale && delta < 0) {
       return
     }
-    this.ts.translate.x += -x * m * 2 + this.targetElement.offsetWidth * m
-    this.ts.translate.y += -y * m * 2 + this.targetElement.offsetHeight * m
+    this.ts.translate.x +=
+      -pointerX * m * 2 + this.targetElement.offsetWidth * m
+    this.ts.translate.y +=
+      -pointerY * m * 2 + this.targetElement.offsetHeight * m
 
     this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale})`
     if (this.eventElement) {

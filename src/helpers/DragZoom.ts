@@ -287,8 +287,8 @@ class DragZoom {
     this.dragRef.zoomPoint.y = pinchCenterY - offset.top
 
     this.dragRef.targetSize = {
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: this.wrapElement.current.offsetWidth,
+      height: this.wrapElement.current.offsetHeight,
     }
     if (!this.dragRef.targetSize) return
     const mapDist = Math.hypot(
@@ -306,6 +306,7 @@ class DragZoom {
     const scale =
       ((mapDist * dist) / this.dragRef.scaleStart / mapDist) *
       this.dragRef.startCurrentScale
+
     this.dragRef.currentScale = Math.min(
       Math.max(this.dragRef.minScale, scale),
       this.dragRef.maxScale
@@ -348,17 +349,13 @@ class DragZoom {
   // onTouchMove
   draggingTouch = (event: any) => {
     event.stopPropagation()
-    if (
-      this.dragRef.scaleAble &&
-      event.changedTouches[0] &&
-      event.changedTouches[1]
-    ) {
+    if (this.dragRef.scaleAble && event.touches[0] && event.touches[1]) {
       this.dragRef.dragged = true
-      this.updateScale(event.changedTouches[0], event.changedTouches[1])
+      this.updateScale(event.touches[0], event.touches[1])
     } else if (this.dragRef.dragAble) {
       const endPoint = {
-        x: event.changedTouches[0].pageX,
-        y: event.changedTouches[0].pageY,
+        x: event.touches[0].pageX,
+        y: event.touches[0].pageY,
       }
 
       let dragDiff = {
@@ -372,10 +369,7 @@ class DragZoom {
         this.dragRef.dragged = true
       }
       // ? 맵 이동
-      this.updateScrollPos(
-        event.changedTouches[0].pageX,
-        event.changedTouches[0].pageY
-      )
+      this.updateScrollPos(event.touches[0].pageX, event.touches[0].pageY)
     }
   }
   // onMouseUp, onTouchEnd or leave event
@@ -452,6 +446,7 @@ class DragZoom {
     if (event.touches?.length === 2) {
       this.dragRef.scaleAble = true
       this.dragRef.dragAble = false
+
       const dist = Math.hypot(
         event.touches[0].pageX - event.touches[1].pageX,
         event.touches[0].pageY - event.touches[1].pageY
