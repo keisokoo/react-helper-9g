@@ -17,7 +17,7 @@ export const Wrap = styled.div`
   width: 100%;
   height: 100%;
   touch-action: none;
-  transform-origin: 0 0;
+  /* transform-origin: 0 0; */
 
   display: flex;
   align-items: center;
@@ -49,25 +49,15 @@ function App() {
     <Container
       ref={eventRef}
       // onMouseDown={dragEvent?.dragEvent}
-      onTouchStart={dragEvent?.dragEvent}
+      // onTouchStart={dragEvent?.dragEvent}
     >
       <Wrap
         ref={dragRef}
-        onWheel={wheel?.onWheel}
-        // onTouchStart={pinch?.onTouch}
-        // onTouchMove={pinch?.onMove}
+        // onWheel={wheel?.onWheel}
+        onTouchStart={pinch?.onTouch}
+        onTouchMove={pinch?.onMove}
       >
-        <Target
-          ref={boxRef}
-          onMouseMove={(e) => {
-            const currentTarget = e.currentTarget
-            const bounding = currentTarget.getBoundingClientRect()
-
-            console.log('currentTarget.offsetLeft', currentTarget.offsetLeft)
-            console.log('x', e.pageX - currentTarget.offsetLeft)
-            console.log('y', e.pageY - currentTarget.offsetTop)
-          }}
-        ></Target>
+        <Target ref={boxRef}></Target>
       </Wrap>
     </Container>
   )

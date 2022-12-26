@@ -63,19 +63,18 @@ class PinchZoom {
       )
       let rec = this.targetElement.getBoundingClientRect()
       let pinchCenterX =
-        (firstTouch.clientX + secondTouch.clientX) / 2 / this.ts.scale
+        ((firstTouch.clientX + secondTouch.clientX) / 2 - rec.left) /
+        this.ts.scale
       let pinchCenterY =
-        (firstTouch.clientY + secondTouch.clientY) / 2 / this.ts.scale
-
-      let x = -pinchCenterX + this.targetElement.offsetLeft / this.ts.scale
-      let y = -pinchCenterY + this.targetElement.offsetTop / this.ts.scale
+        ((firstTouch.clientY + secondTouch.clientY) / 2 - rec.top) /
+        this.ts.scale
 
       console.log(`this.ts.scale: ${this.ts.scale}`)
-      console.log(`x: ${x}`, `y: ${y}`)
+      console.log(`x: ${pinchCenterX}`, `y: ${pinchCenterY}`)
 
       let targetSize = {
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: this.targetElement.offsetWidth,
+        height: this.targetElement.offsetHeight,
       }
       const mapDist = Math.hypot(
         targetSize.width * this.ts.scale,
@@ -83,16 +82,22 @@ class PinchZoom {
       )
       const scale =
         ((mapDist * dist) / this.startDist / mapDist) * this.startScale
+      const restrictScale = Math.min(
+        Math.max(this.minScale, scale),
+        this.maxScale
+      )
       // this.ts.scale = scale
-      let m = this.ts.scale - scale
+      const factor = restrictScale - this.ts.scale
+      const m = factor > 0 ? factor / 2 : factor / 2
       console.log('m', m)
 
-      // this.ts.translate.x +=
-      //   -((x * m * 2) / 2) + (this.targetElement.offsetWidth * m) / 2
-      // this.ts.translate.y +=
-      //   -((y * m * 2) / 2) + (this.targetElement.offsetHeight * m) / 2
+      this.ts.translate.x +=
+        -((pinchCenterX * m * 2) / 2) + (this.targetElement.offsetWidth * m) / 2
+      this.ts.translate.y +=
+        -((pinchCenterY * m * 2) / 2) +
+        (this.targetElement.offsetHeight * m) / 2
 
-      this.ts.scale = Math.min(Math.max(this.minScale, scale), this.maxScale)
+      this.ts.scale = restrictScale
       this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale})`
       if (this.eventElement) {
         this.eventElement.ontouchmove = func

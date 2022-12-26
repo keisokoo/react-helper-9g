@@ -307,11 +307,15 @@ class DragZoom {
       ((mapDist * dist) / this.dragRef.scaleStart / mapDist) *
       this.dragRef.startCurrentScale
 
-    this.dragRef.currentScale = Math.min(
+    const restrictScale = Math.min(
       Math.max(this.dragRef.minScale, scale),
       this.dragRef.maxScale
     )
+    const factor = restrictScale - this.dragRef.currentScale
+    const m = factor > 0 ? factor / 2 : factor / 2
+    console.log(m)
 
+    this.dragRef.currentScale = restrictScale
     const currentX =
       -this.dragRef.zoomTarget.x * this.dragRef.currentScale +
       this.dragRef.zoomPoint.x
