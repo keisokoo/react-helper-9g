@@ -72,6 +72,7 @@ class DragZoom {
     dragged: false,
     threshold: 1,
   }
+  useMaxBound: boolean = false
   wrapElement: MutableRefObject<HTMLDivElement>
   dragAndZoomElement: MutableRefObject<HTMLElement>
   callback?: (event: any) => void
@@ -81,10 +82,12 @@ class DragZoom {
     config?: {
       callback?: (event: any) => void
       dragRef?: DraggableElementType
+      useMaxBound?: boolean
     }
   ) {
     if (config?.dragRef) this.dragRef = config.dragRef
     if (config?.callback) this.callback = config.callback
+    if (config?.useMaxBound) this.useMaxBound = config.useMaxBound
     this.wrapElement = wrapElement
     this.dragAndZoomElement = dragAndZoomElement
   }
@@ -214,6 +217,7 @@ class DragZoom {
     }
   }
   maxBound = (x: number, y: number) => {
+    if (!this.useMaxBound) return { x, y }
     if (!this.dragAndZoomElement.current) return { x, y }
     this.dragRef.maxBounding.x = window.innerWidth / 2
     this.dragRef.maxBounding.y = window.innerHeight / 2
