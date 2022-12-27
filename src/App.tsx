@@ -70,8 +70,10 @@ function App() {
             let ts = ctr.getPosition()
             ts.rotate = ctr.toggleRotation(ts.rotate)
             set_rotation(ts.rotate)
-            ctr.updatePosition(ts)
-            ctr.updatePosition(ts)
+            ctr.updatePosition((ts) => {
+              ts.rotate = ctr.toggleRotation(ts.rotate)
+              return ts
+            })
           }
         }}
       >

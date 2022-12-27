@@ -86,14 +86,28 @@ class ControlPosition {
       },
     }
   }
+  private isTranslateValues = (value: any): value is translateValues => {
+    return (
+      value !== undefined &&
+      'translate' in value &&
+      'rotate' in value &&
+      'scale' in value
+    )
+  }
   getPosition = (el?: HTMLElement) => {
     const matrix = new WebKitCSSMatrix(
       window.getComputedStyle(el ?? this.targetElement).transform
     )
     return this.decompose_2d_matrix(matrix)
   }
-  updatePosition = (value: translateValues) => {
-    this.ts = value
+  updatePosition = (
+    value: translateValues | ((value: translateValues) => translateValues)
+  ) => {
+    if (this.isTranslateValues(value)) {
+      this.ts = value
+    } else {
+      this.ts = value(this.getPosition())
+    }
     this.setTransform()
   }
   setTransform = () => {
