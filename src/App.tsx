@@ -1,5 +1,6 @@
 import styled from '@emotion/styled/macro'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
+import ClickDrag from './helpers/ClickDrag'
 import DragZoom from './helpers/DragZoom'
 import TouchDragZoom from './helpers/TouchDragZoom'
 import WheelZoom from './helpers/WheelZoom'
@@ -46,12 +47,15 @@ function App() {
   const [dragEvent, set_dragEvent] = useState<DragZoom>()
   const [wheel, set_wheel] = useState<WheelZoom>()
   const [touch, set_touch] = useState<TouchDragZoom>()
+  const [clickDrag, set_clickDrag] = useState<ClickDrag>()
   const [rotation, set_rotation] = useState<number>(0)
   useEffect(() => {
     const drag = new DragZoom(eventRef, dragRef)
     const zz = new WheelZoom(boxRef.current, dragRef.current)
     const pp = new TouchDragZoom(boxRef.current, dragRef.current)
+    const cc = new ClickDrag(boxRef.current, dragRef.current)
     set_touch(pp)
+    set_clickDrag(cc)
     set_wheel(zz)
     set_dragEvent(drag)
   }, [])
@@ -67,6 +71,7 @@ function App() {
         onKeyDown={wheel?.onRotateByKey}
         tabIndex={0}
         onTouchStart={touch?.onTouch}
+        onMouseDown={clickDrag?.onMouseDown}
       >
         <Target ref={boxRef}>h({rotation})</Target>
       </Wrap>
