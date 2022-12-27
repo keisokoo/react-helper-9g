@@ -1,9 +1,6 @@
 import styled from '@emotion/styled/macro'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
-import ClickDrag from './helpers/ClickDrag'
-import DragZoom from './helpers/DragZoom'
-import TouchDragZoom from './helpers/TouchDragZoom'
-import WheelZoom from './helpers/WheelZoom'
+import DragZoom from './helpers/DragAndZoom/DragZoom'
 const Container = styled.div`
   width: 100%;
   height: 100%;
@@ -44,20 +41,11 @@ function App() {
   const eventRef = useRef() as MutableRefObject<HTMLDivElement>
   const boxRef = useRef() as MutableRefObject<HTMLDivElement>
 
-  const [dragEvent, set_dragEvent] = useState<DragZoom>()
-  const [wheel, set_wheel] = useState<WheelZoom>()
-  const [touch, set_touch] = useState<TouchDragZoom>()
-  const [clickDrag, set_clickDrag] = useState<ClickDrag>()
   const [rotation, set_rotation] = useState<number>(0)
+  const [ctr, set_ctr] = useState<DragZoom>()
   useEffect(() => {
-    const drag = new DragZoom(eventRef, dragRef)
-    const zz = new WheelZoom(boxRef.current, dragRef.current)
-    const pp = new TouchDragZoom(boxRef.current, dragRef.current)
-    const cc = new ClickDrag(boxRef.current, dragRef.current)
-    set_touch(pp)
-    set_clickDrag(cc)
-    set_wheel(zz)
-    set_dragEvent(drag)
+    const cc = new DragZoom(boxRef.current, dragRef.current)
+    set_ctr(cc)
   }, [])
   return (
     <Container
@@ -67,11 +55,10 @@ function App() {
     >
       <Wrap
         ref={dragRef}
-        onWheel={wheel?.onWheel}
-        onKeyDown={wheel?.onRotateByKey}
+        onWheel={ctr?.onWheel}
         tabIndex={0}
-        onTouchStart={touch?.onTouch}
-        onMouseDown={clickDrag?.onMouseDown}
+        onTouchStart={ctr?.on}
+        onMouseDown={ctr?.on}
       >
         <Target ref={boxRef}>h({rotation})</Target>
       </Wrap>
@@ -79,14 +66,12 @@ function App() {
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
-          if (wheel && touch) {
-            let ts = wheel.getPosition()
-            console.log('before rotate', ts.rotate)
-            ts.rotate = wheel.toggleRotation(ts.rotate)
-            console.log('update to', ts.rotate)
+          if (ctr) {
+            let ts = ctr.getPosition()
+            ts.rotate = ctr.toggleRotation(ts.rotate)
             set_rotation(ts.rotate)
-            touch.updatePosition(ts)
-            wheel.updatePosition(ts)
+            ctr.updatePosition(ts)
+            ctr.updatePosition(ts)
           }
         }}
       >

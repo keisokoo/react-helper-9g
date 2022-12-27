@@ -101,8 +101,6 @@ class ControlPosition {
   }
   toggleRotation = (value: number) => {
     value = Math.abs(value)
-    console.log(value)
-
     return value === 0 ? 90 : value === 90 ? 180 : value === 180 ? 270 : 0
   }
 }

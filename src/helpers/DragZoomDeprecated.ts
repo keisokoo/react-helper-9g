@@ -43,7 +43,7 @@ interface TargetSize {
   width: number
   height: number
 }
-class DragZoom {
+class DragZoomDeprecated {
   dragRef: DraggableElementType = {
     deceleration: 0.9,
     maximumInertia: 40,
@@ -459,4 +459,4 @@ class DragZoom {
     }
   }
 }
-export default DragZoom
+export default DragZoomDeprecated
