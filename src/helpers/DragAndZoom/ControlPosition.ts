@@ -58,7 +58,6 @@ class ControlPosition {
       scale: [0, 0],
       skew: [0, 0],
     }
-    // Apply the QR-like decomposition.
     if (a !== 0 || b !== 0) {
       let r = Math.sqrt(a * a + b * b)
       result.rotation = b > 0 ? Math.acos(a / r) : -Math.acos(a / r)
@@ -71,7 +70,7 @@ class ControlPosition {
       result.scale = [delta / s, s]
       result.skew = [0, Math.atan((a * c + b * d) / (s * s))]
     } else {
-      // a = b = c = d = 0
+      // a = b = c = d = 0 이므로 업데이트 하지 않는다.
     }
     if (Math.abs(result.rotation) === 0) result.rotation = 0
     const degree = result.rotation * (180 / Math.PI)
