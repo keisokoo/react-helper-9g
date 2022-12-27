@@ -11,7 +11,7 @@ type translateValues = {
 class ControlPosition {
   factor = 0.1
   minScale = 0.1
-  maxScale = 3
+  maxScale = 10
   ts = {
     scale: 1,
     rotate: 0,
