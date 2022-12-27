@@ -29,6 +29,18 @@ class WheelZoom {
     if (this.ts.scale === this.maxScale && delta > 0) {
       return
     }
+    // factor를 지정 안하고 delta값 만큼 키운 후 factor를 구하는 경우
+    // const mapSize = this.targetElement.offsetWidth * this.ts.scale
+    // const nextSize = mapSize + delta
+    // const scale = (nextSize / mapSize) * this.ts.scale
+    // const restrictScale = Math.min(
+    //   Math.max(this.minScale, scale),
+    //   this.maxScale
+    // )
+    // const factor = restrictScale - this.ts.scale
+    // const m = factor > 0 ? factor / 2 : factor / 2
+    // this.ts.scale = restrictScale
+
     this.ts.scale =
       delta > 0 ? this.ts.scale + this.factor : this.ts.scale - this.factor
     this.ts.scale = Math.min(

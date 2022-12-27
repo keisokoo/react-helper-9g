@@ -53,9 +53,10 @@ function App() {
     >
       <Wrap
         ref={dragRef}
-        // onWheel={wheel?.onWheel}
+        onWheel={wheel?.onWheel}
         onTouchStart={pinch?.onTouch}
         onTouchMove={pinch?.onMove}
+        onTouchEnd={pinch?.onEnd}
       >
         <Target ref={boxRef}></Target>
       </Wrap>
