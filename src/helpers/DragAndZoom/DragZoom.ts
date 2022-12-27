@@ -162,6 +162,7 @@ class DragZoom extends Drag {
     this.isScale = false
   }
   onWheel = (event: React.WheelEvent) => {
+    console.log(event)
     if (!this.targetElement) return
     this.ts = this.getPosition()
 

@@ -4,12 +4,14 @@ import DragZoom from './helpers/DragAndZoom/DragZoom'
 const Container = styled.div`
   width: 100%;
   height: 100%;
-  position: absolute;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   touch-action: none;
+  & > * {
+    box-sizing: border-box;
+  }
 `
 const Wrap = styled.div`
   width: 100%;
@@ -48,11 +50,7 @@ function App() {
     set_ctr(cc)
   }, [])
   return (
-    <Container
-      ref={eventRef}
-      // onMouseDown={dragEvent?.dragEvent}
-      // onTouchStart={dragEvent?.dragEvent}
-    >
+    <Container ref={eventRef}>
       <Wrap
         ref={dragRef}
         onWheel={ctr?.onWheel}
