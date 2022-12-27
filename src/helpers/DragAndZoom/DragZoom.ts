@@ -194,13 +194,14 @@ class DragZoom extends Drag {
       w: Math.round(rec.width / this.ts.scale),
       h: Math.round(rec.height / this.ts.scale),
     }
-    this.ts.scale =
-      delta > 0 ? this.ts.scale + this.factor : this.ts.scale - this.factor
+    const factor = this.factor * this.ts.scale
+
+    this.ts.scale = delta > 0 ? this.ts.scale + factor : this.ts.scale - factor
     this.ts.scale = Math.min(
       Math.max(this.minScale, this.ts.scale),
       this.maxScale
     )
-    let m = delta > 0 ? this.factor / 2 : -(this.factor / 2)
+    let m = delta > 0 ? factor / 2 : -(factor / 2)
     if (this.ts.scale <= this.minScale && delta < 0) {
       return
     }
