@@ -3,7 +3,7 @@ import Drag from './Drag'
 class DragZoom extends Drag {
   on = (event: any) => {
     this.ts = this.getPosition()
-    if (event.touches.length === 2) {
+    if (this.isTouchEvent(event) && event.touches.length === 2) {
       this.isDrag = false
       this.isScale = true
       // 터치 시작시 두손가락 거리
@@ -18,8 +18,8 @@ class DragZoom extends Drag {
       this.isDrag = true
       this.isScale = false
       this.startPoint = {
-        x: event.touches[0] ? event.touches[0].pageX : event.pageX,
-        y: event.touches[0] ? event.touches[0].pageY : event.pageX,
+        x: this.isTouchEvent(event) ? event.touches[0].pageX : event.pageX,
+        y: this.isTouchEvent(event) ? event.touches[0].pageY : event.pageY,
       }
       this.previousPosition = {
         x: this.ts.translate.x,
