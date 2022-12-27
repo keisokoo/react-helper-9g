@@ -89,11 +89,10 @@ class TouchDragZoom extends ControlPosition {
       this.startScale = this.ts.scale
     }
     const eventTarget = this.eventElement ?? this.targetElement
-    eventTarget.addEventListener('touchmove', this.onMove, false)
+    eventTarget.addEventListener('touchmove', this.onMove, { passive: true })
     eventTarget.addEventListener('touchend', this.onEnd)
   }
   private onMove = (event: TouchEvent | React.TouchEvent) => {
-    event.preventDefault()
     if (!this.targetElement) return
     // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
     let func = this.eventElement
