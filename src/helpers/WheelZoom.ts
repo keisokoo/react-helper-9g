@@ -1,21 +1,18 @@
-class WheelZoom {
-  factor = 0.1
-  ts = {
-    scale: 1,
-    rotate: 0,
-    translate: {
-      x: 0,
-      y: 0,
-    },
+import ControlPosition from './ControlPosition'
+
+class WheelZoom extends ControlPosition {
+  onRotateByKey = (event: React.KeyboardEvent) => {
+    if (event.code === 'KeyR') {
+      this.ts = this.getPosition()
+      this.ts.translate = { x: 0, y: 0 }
+      this.ts.rotate = this.toggleRotation(this.ts.rotate)
+      this.setTransform()
+    }
   }
-  minScale = 0.1
-  maxScale = 3
-  constructor(
-    private targetElement?: HTMLElement,
-    private eventElement?: HTMLElement
-  ) {}
   onWheel = (event: React.WheelEvent) => {
     if (!this.targetElement) return
+    this.ts = this.getPosition()
+
     let func = this.eventElement
       ? this.eventElement.onwheel
       : this.targetElement.onwheel
@@ -41,6 +38,10 @@ class WheelZoom {
     // const m = factor > 0 ? factor / 2 : factor / 2
     // this.ts.scale = restrictScale
 
+    const beforeTargetSize = {
+      w: Math.round(rec.width / this.ts.scale),
+      h: Math.round(rec.height / this.ts.scale),
+    }
     this.ts.scale =
       delta > 0 ? this.ts.scale + this.factor : this.ts.scale - this.factor
     this.ts.scale = Math.min(
@@ -51,12 +52,11 @@ class WheelZoom {
     if (this.ts.scale <= this.minScale && delta < 0) {
       return
     }
-    this.ts.translate.x +=
-      -pointerX * m * 2 + this.targetElement.offsetWidth * m
-    this.ts.translate.y +=
-      -pointerY * m * 2 + this.targetElement.offsetHeight * m
 
-    this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale})`
+    this.ts.translate.x += -pointerX * m * 2 + beforeTargetSize.w * m
+    this.ts.translate.y += -pointerY * m * 2 + beforeTargetSize.h * m
+    this.ts.translate = this.restrictXY(this.ts.translate)
+    this.setTransform()
     if (this.eventElement) {
       this.eventElement.onwheel = func
     } else {
@@ -64,4 +64,5 @@ class WheelZoom {
     }
   }
 }
+
 export default WheelZoom

@@ -3,7 +3,7 @@ import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import DragZoom from './helpers/DragZoom'
 import TouchDragZoom from './helpers/TouchDragZoom'
 import WheelZoom from './helpers/WheelZoom'
-export const Container = styled.div`
+const Container = styled.div`
   width: 100%;
   height: 100%;
   position: absolute;
@@ -13,7 +13,7 @@ export const Container = styled.div`
   justify-content: center;
   touch-action: none;
 `
-export const Wrap = styled.div`
+const Wrap = styled.div`
   width: 100%;
   height: 100%;
   touch-action: none;
@@ -23,10 +23,20 @@ export const Wrap = styled.div`
   align-items: center;
   justify-content: center;
 `
-export const Target = styled.div`
-  width: 200px;
+const Target = styled.div`
+  width: 100px;
   height: 200px;
   background-color: #ccc;
+`
+const RotateTestButton = styled.button`
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  width: 32px;
+  height: 32px;
+  background-color: #ccc;
+  color: #000;
+  border-radius: 50%;
 `
 function App() {
   const dragRef = useRef() as MutableRefObject<HTMLDivElement>
@@ -36,7 +46,7 @@ function App() {
   const [dragEvent, set_dragEvent] = useState<DragZoom>()
   const [wheel, set_wheel] = useState<WheelZoom>()
   const [touch, set_touch] = useState<TouchDragZoom>()
-
+  const [rotation, set_rotation] = useState<number>(0)
   useEffect(() => {
     const drag = new DragZoom(eventRef, dragRef)
     const zz = new WheelZoom(boxRef.current, dragRef.current)
@@ -54,10 +64,29 @@ function App() {
       <Wrap
         ref={dragRef}
         onWheel={wheel?.onWheel}
+        onKeyDown={wheel?.onRotateByKey}
+        tabIndex={0}
         onTouchStart={touch?.onTouch}
       >
-        <Target ref={boxRef}></Target>
+        <Target ref={boxRef}>h({rotation})</Target>
       </Wrap>
+      <RotateTestButton
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          if (wheel && touch) {
+            let ts = wheel.getPosition()
+            console.log('before rotate', ts.rotate)
+            ts.rotate = wheel.toggleRotation(ts.rotate)
+            console.log('update to', ts.rotate)
+            set_rotation(ts.rotate)
+            touch.updatePosition(ts)
+            wheel.updatePosition(ts)
+          }
+        }}
+      >
+        R
+      </RotateTestButton>
     </Container>
   )
 }
