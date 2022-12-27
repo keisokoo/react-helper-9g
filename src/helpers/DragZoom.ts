@@ -361,7 +361,6 @@ class DragZoom {
         x: event.touches[0].pageX,
         y: event.touches[0].pageY,
       }
-
       let dragDiff = {
         x: Math.abs(this.dragRef.dragStart.x - endPoint.x),
         y: Math.abs(this.dragRef.dragStart.y - endPoint.y),

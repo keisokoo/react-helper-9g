@@ -1,7 +1,7 @@
 import styled from '@emotion/styled/macro'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import DragZoom from './helpers/DragZoom'
-import PinchZoom from './helpers/PinchZoom'
+import TouchDragZoom from './helpers/TouchDragZoom'
 import WheelZoom from './helpers/WheelZoom'
 export const Container = styled.div`
   width: 100%;
@@ -35,13 +35,13 @@ function App() {
 
   const [dragEvent, set_dragEvent] = useState<DragZoom>()
   const [wheel, set_wheel] = useState<WheelZoom>()
-  const [pinch, set_pinch] = useState<PinchZoom>()
+  const [touch, set_touch] = useState<TouchDragZoom>()
 
   useEffect(() => {
     const drag = new DragZoom(eventRef, dragRef)
     const zz = new WheelZoom(boxRef.current, dragRef.current)
-    const pp = new PinchZoom(boxRef.current, dragRef.current)
-    set_pinch(pp)
+    const pp = new TouchDragZoom(boxRef.current, dragRef.current)
+    set_touch(pp)
     set_wheel(zz)
     set_dragEvent(drag)
   }, [])
@@ -54,9 +54,7 @@ function App() {
       <Wrap
         ref={dragRef}
         onWheel={wheel?.onWheel}
-        onTouchStart={pinch?.onTouch}
-        onTouchMove={pinch?.onMove}
-        onTouchEnd={pinch?.onEnd}
+        onTouchStart={touch?.onTouch}
       >
         <Target ref={boxRef}></Target>
       </Wrap>
