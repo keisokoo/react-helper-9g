@@ -1,4 +1,4 @@
-import Drag from './Drag'
+import Drag from '../Drag'
 
 class ClickDrag extends Drag {
   onMouseDown = (event: MouseEvent | React.MouseEvent) => {

@@ -14,7 +14,6 @@ class Drag extends ControlPosition {
     x: 0,
     y: 0,
   }
-
   private maximumInertia = 40
   velocity = {
     x: 0,

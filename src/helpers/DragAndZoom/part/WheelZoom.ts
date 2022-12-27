@@ -1,4 +1,4 @@
-import ControlPosition from './ControlPosition'
+import ControlPosition from '../ControlPosition'
 
 class WheelZoom extends ControlPosition {
   onRotateByKey = (event: React.KeyboardEvent) => {

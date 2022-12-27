@@ -1,4 +1,4 @@
-import Drag from './Drag'
+import Drag from '../Drag'
 
 class TouchDragZoom extends Drag {
   onTouch = (event: TouchEvent | React.TouchEvent) => {
