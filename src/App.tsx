@@ -56,7 +56,7 @@ function App() {
         }
         return cc.areaRestrictions(currentXY, {
           type: 'outer',
-          threshold: 10 * cc.ts.scale,
+          threshold: -10 * cc.ts.scale,
         })
       },
     })

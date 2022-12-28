@@ -58,8 +58,7 @@ class ControlPosition {
     if (configs?.restrictPosition)
       this.restrictPosition = configs.restrictPosition
   }
-  areaRestrictions = (
-    currentPosition: { x: number; y: number },
+  private getRectSize = (
     option: {
       type?: 'inner' | 'outer'
       threshold?: number
@@ -68,7 +67,6 @@ class ControlPosition {
       threshold: 0,
     }
   ) => {
-    let { x, y } = currentPosition
     let bound = this.eventElement
       ? this.eventElement.getBoundingClientRect()
       : document.body.getBoundingClientRect()
@@ -82,6 +80,23 @@ class ControlPosition {
       x: bound.width / 2 - rectSize.w / 2 + threshold,
       y: bound.height / 2 - rectSize.h / 2 + threshold,
     }
+    return {
+      rectSize,
+      maxSize,
+    }
+  }
+  areaRestrictions = (
+    currentPosition: { x: number; y: number },
+    option: {
+      type?: 'inner' | 'outer'
+      threshold?: number
+    } = {
+      type: 'inner',
+      threshold: 0,
+    }
+  ) => {
+    let { x, y } = currentPosition
+    const { maxSize } = this.getRectSize(option)
     if (Math.abs(x) > maxSize.x) {
       x = x < 0 ? -maxSize.x : maxSize.x
     }
@@ -105,20 +120,9 @@ class ControlPosition {
         bottom: false,
       },
     }
-    let bound = this.eventElement
-      ? this.eventElement.getBoundingClientRect()
-      : document.body.getBoundingClientRect()
-    const areaType = type === 'inner' ? 1 : -1
-    const rectSize = {
-      w: this.targetElement.offsetWidth * this.ts.scale * areaType,
-      h: this.targetElement.offsetHeight * this.ts.scale * areaType,
-    }
-    const maxSize = {
-      x: bound.width / 2 - rectSize.w / 2,
-      y: bound.height / 2 - rectSize.h / 2,
-    }
-    let xPosition: 'left' | 'right' = x < 0 ? 'left' : 'right'
-    let yPosition: 'top' | 'bottom' = y < 0 ? 'top' : 'bottom'
+    const { maxSize } = this.getRectSize({ type, threshold: 0 })
+    const xPosition: 'left' | 'right' = x < 0 ? 'left' : 'right'
+    const yPosition: 'top' | 'bottom' = y < 0 ? 'top' : 'bottom'
     if (Math.abs(x) > maxSize.x) {
       outOfBox.x[xPosition] = true
     }
