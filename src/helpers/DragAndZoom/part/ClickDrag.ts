@@ -45,7 +45,10 @@ class ClickDrag extends Drag {
       x: this.ts.translate.x - oldX,
       y: this.ts.translate.y - oldY,
     }
-    if (this.velocity.x > this.threshold || this.velocity.y > this.threshold)
+    if (
+      Math.abs(this.velocity.x) > this.threshold ||
+      Math.abs(this.velocity.y) > this.threshold
+    )
       this.dragged = true
     // 핀치 이벤트
     // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
@@ -62,6 +65,7 @@ class ClickDrag extends Drag {
     eventTarget.removeEventListener('mouseleave', this.onEnd)
 
     cancelAnimationFrame(this.inertiaAnimationFrame)
+
     if (this.dragged && this.isDrag) {
       this.dragFinish()
     }

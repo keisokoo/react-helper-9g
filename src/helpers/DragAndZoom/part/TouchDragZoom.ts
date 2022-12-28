@@ -59,7 +59,10 @@ class TouchDragZoom extends Drag {
         x: this.ts.translate.x - oldX,
         y: this.ts.translate.y - oldY,
       }
-      if (this.velocity.x > this.threshold || this.velocity.y > this.threshold)
+      if (
+        Math.abs(this.velocity.x) > this.threshold ||
+        Math.abs(this.velocity.y) > this.threshold
+      )
         this.dragged = true
       // 핀치 이벤트
     } else if (this.isScale && event.touches.length === 2) {

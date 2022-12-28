@@ -72,7 +72,10 @@ class DragZoom extends Drag {
         x: this.ts.translate.x - oldX,
         y: this.ts.translate.y - oldY,
       }
-      if (this.velocity.x > this.threshold || this.velocity.y > this.threshold)
+      if (
+        Math.abs(this.velocity.x) > this.threshold ||
+        Math.abs(this.velocity.y) > this.threshold
+      )
         this.dragged = true
       // 핀치 이벤트
     } else if (
@@ -154,6 +157,8 @@ class DragZoom extends Drag {
     }
 
     cancelAnimationFrame(this.inertiaAnimationFrame)
+    console.log(`this.dragged`, this.dragged)
+    console.log(`this.isDrag`, this.isDrag)
     if (this.dragged && this.isDrag) {
       this.dragFinish()
     }
