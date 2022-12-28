@@ -7,7 +7,20 @@ type translateValues = {
   rotate: number
   translate: XY
 }
-
+type OutOfBox = {
+  x: {
+    left: boolean
+    right: boolean
+  }
+  y: {
+    top: boolean
+    bottom: boolean
+  }
+}
+type OutOfBoxAll = {
+  inner: OutOfBox
+  outer: OutOfBox
+}
 class ControlPosition {
   factor = 0.1
   minScale = 0.1
@@ -20,7 +33,11 @@ class ControlPosition {
       y: 0,
     },
   }
-  restrictPosition?: (current: XY, targetEl: DOMRect) => XY
+  restrictPosition?: (
+    current: XY,
+    targetEl: DOMRect,
+    outOfBox: OutOfBoxAll
+  ) => XY
   constructor(
     public targetElement: HTMLElement,
     public eventElement?: HTMLElement,
@@ -28,7 +45,11 @@ class ControlPosition {
       factor?: number
       minScale?: number
       maxScale?: number
-      restrictPosition?: (current: XY, targetEl: DOMRect) => XY
+      restrictPosition?: (
+        current: XY,
+        targetEl: DOMRect,
+        outOfBox: OutOfBoxAll
+      ) => XY
     }
   ) {
     if (configs?.factor) this.factor = configs.factor
@@ -69,16 +90,57 @@ class ControlPosition {
     }
     return { x, y }
   }
+  checkBoxLimit = (
+    currentPosition: { x: number; y: number },
+    type: 'inner' | 'outer'
+  ) => {
+    let { x, y } = currentPosition
+    let outOfBox = {
+      x: {
+        left: false,
+        right: false,
+      },
+      y: {
+        top: false,
+        bottom: false,
+      },
+    }
+    let bound = this.eventElement
+      ? this.eventElement.getBoundingClientRect()
+      : document.body.getBoundingClientRect()
+    const areaType = type === 'inner' ? 1 : -1
+    const rectSize = {
+      w: this.targetElement.offsetWidth * this.ts.scale * areaType,
+      h: this.targetElement.offsetHeight * this.ts.scale * areaType,
+    }
+    const maxSize = {
+      x: bound.width / 2 - rectSize.w / 2,
+      y: bound.height / 2 - rectSize.h / 2,
+    }
+    let xPosition: 'left' | 'right' = x < 0 ? 'left' : 'right'
+    let yPosition: 'top' | 'bottom' = y < 0 ? 'top' : 'bottom'
+    if (Math.abs(x) > maxSize.x) {
+      outOfBox.x[xPosition] = true
+    }
+    if (Math.abs(y) > maxSize.y) {
+      outOfBox.y[yPosition] = true
+    }
+    return outOfBox
+  }
   restrictXY = (currentPosition: { x: number; y: number }) => {
     let { x, y } = currentPosition
 
     if (!this.targetElement) return { x, y }
+    const outOfBox = {
+      inner: this.checkBoxLimit(currentPosition, 'inner'),
+      outer: this.checkBoxLimit(currentPosition, 'outer'),
+    } as OutOfBoxAll
     if (!this.restrictPosition) {
       return { x, y }
     }
     const imageBound = this.targetElement.getBoundingClientRect()
 
-    return this.restrictPosition(currentPosition, imageBound)
+    return this.restrictPosition(currentPosition, imageBound, outOfBox)
   }
   private decompose_2d_matrix = (mat: DOMMatrix): translateValues => {
     const { a, b, c, d, e, f } = mat
