@@ -157,8 +157,6 @@ class DragZoom extends Drag {
     }
 
     cancelAnimationFrame(this.inertiaAnimationFrame)
-    console.log(`this.dragged`, this.dragged)
-    console.log(`this.isDrag`, this.isDrag)
     if (this.dragged && this.isDrag) {
       this.dragFinish()
     }

@@ -311,9 +311,8 @@ class DragZoomDeprecated {
       Math.max(this.dragRef.minScale, scale),
       this.dragRef.maxScale
     )
-    const factor = restrictScale - this.dragRef.currentScale
-    const m = factor > 0 ? factor / 2 : factor / 2
-    console.log(m)
+    // const factor = restrictScale - this.dragRef.currentScale
+    // const m = factor > 0 ? factor / 2 : factor / 2
 
     this.dragRef.currentScale = restrictScale
     const currentX =
