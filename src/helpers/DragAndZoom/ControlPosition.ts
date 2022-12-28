@@ -37,13 +37,47 @@ class ControlPosition {
     if (configs?.restrictPosition)
       this.restrictPosition = configs.restrictPosition
   }
+  areaRestrictions = (
+    currentPosition: { x: number; y: number },
+    option: {
+      type?: 'inner' | 'outer'
+      threshold?: number
+    } = {
+      type: 'inner',
+      threshold: 0,
+    }
+  ) => {
+    let { x, y } = currentPosition
+    let bound = this.eventElement
+      ? this.eventElement.getBoundingClientRect()
+      : document.body.getBoundingClientRect()
+    const areaType = option.type === 'inner' ? 1 : -1
+    const threshold = option.threshold ?? 0
+    const rectSize = {
+      w: this.targetElement.offsetWidth * this.ts.scale * areaType,
+      h: this.targetElement.offsetHeight * this.ts.scale * areaType,
+    }
+    const maxSize = {
+      x: bound.width / 2 - rectSize.w / 2 + threshold,
+      y: bound.height / 2 - rectSize.h / 2 + threshold,
+    }
+    if (Math.abs(x) > maxSize.x) {
+      x = x < 0 ? -maxSize.x : maxSize.x
+    }
+    if (Math.abs(y) > maxSize.y) {
+      y = y < 0 ? -maxSize.y : maxSize.y
+    }
+    return { x, y }
+  }
   restrictXY = (currentPosition: { x: number; y: number }) => {
     let { x, y } = currentPosition
+
     if (!this.targetElement) return { x, y }
     if (!this.restrictPosition) {
       return { x, y }
     }
     const imageBound = this.targetElement.getBoundingClientRect()
+
     return this.restrictPosition(currentPosition, imageBound)
   }
   private decompose_2d_matrix = (mat: DOMMatrix): translateValues => {

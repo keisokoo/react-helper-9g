@@ -46,7 +46,14 @@ function App() {
   const [rotation, set_rotation] = useState<number>(0)
   const [ctr, set_ctr] = useState<DragZoom>()
   useEffect(() => {
-    const cc = new DragZoom(boxRef.current, dragRef.current)
+    const cc: DragZoom = new DragZoom(boxRef.current, dragRef.current, {
+      restrictPosition: (currentXY) => {
+        return cc.areaRestrictions(currentXY, {
+          type: 'outer',
+          threshold: -20 * cc.ts.scale,
+        })
+      },
+    })
     set_ctr(cc)
   }, [])
   return (
