@@ -70,11 +70,13 @@ class ControlPosition {
     let bound = this.eventElement
       ? this.eventElement.getBoundingClientRect()
       : document.body.getBoundingClientRect()
+    let targetBound = this.targetElement.getBoundingClientRect()
+
     const areaType = option.type === 'inner' ? 1 : -1
     const threshold = option.threshold ?? 0
     const rectSize = {
-      w: this.targetElement.offsetWidth * this.ts.scale * areaType,
-      h: this.targetElement.offsetHeight * this.ts.scale * areaType,
+      w: targetBound.width * areaType,
+      h: targetBound.height * areaType,
     }
     const maxSize = {
       x: bound.width / 2 - rectSize.w / 2 + threshold,
@@ -219,6 +221,8 @@ class ControlPosition {
     } else {
       this.ts = value(this.getPosition())
     }
+    this.setTransform()
+    this.ts.translate = this.restrictXY(this.ts.translate)
     this.setTransform()
   }
   setTransform = () => {

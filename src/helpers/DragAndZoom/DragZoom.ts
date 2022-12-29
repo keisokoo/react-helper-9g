@@ -211,7 +211,8 @@ class DragZoom extends Drag {
 
     this.ts.translate.x += -pointerX * m * 2 + beforeTargetSize.w * m
     this.ts.translate.y += -pointerY * m * 2 + beforeTargetSize.h * m
-    // this.ts.translate = this.restrictXY(this.ts.translate)
+    this.setTransform()
+    this.ts.translate = this.restrictXY(this.ts.translate)
     this.setTransform()
     if (this.eventElement) {
       this.eventElement.onwheel = func

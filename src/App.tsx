@@ -50,8 +50,7 @@ function App() {
       restrictPosition: (currentXY, el, outOfBox) => {
         return cc.areaRestrictions(currentXY, {
           type: 'inner',
-          threshold: -10 * cc.ts.scale,
-          disabled: { y: true },
+          threshold: 0,
         })
       },
     })
