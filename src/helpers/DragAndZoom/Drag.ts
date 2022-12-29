@@ -67,7 +67,10 @@ class Drag extends ControlPosition {
       this.targetElement.ontouchmove = func
     }
   }
-  firePinch = (firstTouch: Touch, secondTouch: Touch) => {
+  firePinch = (
+    firstTouch: Touch | React.Touch,
+    secondTouch: Touch | React.Touch
+  ) => {
     if (!this.targetElement) return
     // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
     let func = this.eventElement

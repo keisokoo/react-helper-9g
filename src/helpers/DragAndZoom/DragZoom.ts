@@ -27,7 +27,7 @@ class DragZoom extends Drag {
       this.velocity = { x: 0, y: 0 }
     }
     const eventTarget = this.eventElement ?? this.targetElement
-    if (event.touches) {
+    if (this.isTouchEvent(event)) {
       eventTarget.addEventListener('touchmove', this.onMove, { passive: true })
       eventTarget.addEventListener('touchend', this.onEnd)
     } else {
