@@ -1,11 +1,12 @@
 import Drag from './Drag'
+import { isTouchEvent } from './utils'
 class DragZoom extends Drag {
   on = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
     this.fireOn(event)
     const eventTarget = this.eventElement ?? this.targetElement
-    if (this.isTouchEvent(event)) {
+    if (isTouchEvent(event)) {
       eventTarget.addEventListener('touchmove', this.onMove, { passive: true })
       eventTarget.addEventListener('touchend', this.onEnd)
     } else {
@@ -18,16 +19,16 @@ class DragZoom extends Drag {
     // 드래그 이벤트 (현재 없음)
     if (
       this.isDrag &&
-      ((this.isTouchEvent(event) && event.touches.length === 1) ||
-        !this.isTouchEvent(event))
+      ((isTouchEvent(event) && event.touches.length === 1) ||
+        !isTouchEvent(event))
     ) {
-      const x = this.isTouchEvent(event) ? event.touches[0].pageX : event.pageX
-      const y = this.isTouchEvent(event) ? event.touches[0].pageY : event.pageY
+      const x = isTouchEvent(event) ? event.touches[0].pageX : event.pageX
+      const y = isTouchEvent(event) ? event.touches[0].pageY : event.pageY
       this.fireDrag(x, y)
       // 핀치 이벤트
     } else if (
       this.isScale &&
-      this.isTouchEvent(event) &&
+      isTouchEvent(event) &&
       event.touches.length === 2
     ) {
       const firstTouch = event.touches[0]
@@ -37,7 +38,7 @@ class DragZoom extends Drag {
   }
   private onEnd = (event: TouchEvent | MouseEvent) => {
     const eventTarget = this.eventElement ?? this.targetElement
-    if (this.isTouchEvent(event)) {
+    if (isTouchEvent(event)) {
       eventTarget.removeEventListener('touchmove', this.onMove)
       eventTarget.removeEventListener('touchend', this.onEnd)
     } else {

@@ -1,4 +1,9 @@
 import ControlPosition from './ControlPosition'
+import {
+  handleGetBeforeTargetSize,
+  handleGetCurrentPoint,
+  isTouchEvent,
+} from './utils'
 
 class Drag extends ControlPosition {
   inertiaAnimationFrame = -1
@@ -33,15 +38,12 @@ class Drag extends ControlPosition {
 
     return value
   }
-  isTouchEvent = (event: any): event is TouchEvent | React.TouchEvent => {
-    return 'touches' in event
-  }
   fireOn = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
     this.ts = this.getPosition()
     cancelAnimationFrame(this.inertiaAnimationFrame)
-    if (this.isTouchEvent(event) && event.touches.length === 2) {
+    if (isTouchEvent(event) && event.touches.length === 2) {
       this.isDrag = false
       this.isScale = true
       // 터치 시작시 두손가락 거리
@@ -55,8 +57,8 @@ class Drag extends ControlPosition {
       this.isDrag = true
       this.isScale = false
       this.startPoint = {
-        x: this.isTouchEvent(event) ? event.touches[0].pageX : event.pageX,
-        y: this.isTouchEvent(event) ? event.touches[0].pageY : event.pageY,
+        x: isTouchEvent(event) ? event.touches[0].pageX : event.pageX,
+        y: isTouchEvent(event) ? event.touches[0].pageY : event.pageY,
       }
       this.previousPosition = {
         x: this.ts.translate.x,
@@ -114,20 +116,24 @@ class Drag extends ControlPosition {
       firstTouch.clientX - secondTouch.clientX,
       firstTouch.clientY - secondTouch.clientY
     )
-    // 대상의 현재 offset 값을 얻기 위해
-    let rec = this.targetElement.getBoundingClientRect()
     // 두 손가락의 중앙값을 구합니다.
-    let pinchCenterX =
-      ((firstTouch.clientX + secondTouch.clientX) / 2 - rec.left) /
+    const pinchCenterX = handleGetCurrentPoint(
+      this.targetElement,
+      firstTouch.clientX + secondTouch.clientX,
       this.ts.scale
-    let pinchCenterY =
-      ((firstTouch.clientY + secondTouch.clientY) / 2 - rec.top) / this.ts.scale
+    )
+    const pinchCenterY = handleGetCurrentPoint(
+      this.targetElement,
+      firstTouch.clientY + secondTouch.clientY,
+      this.ts.scale
+    )
 
     // 변경전 실제 길이값, ( 회전할 경우를 width,height값의 기준이 변경되므로 offsetWidth를 쓰지않는다.)
-    const beforeTargetSize = {
-      w: Math.round(rec.width / this.ts.scale),
-      h: Math.round(rec.height / this.ts.scale),
-    }
+    const beforeTargetSize = handleGetBeforeTargetSize(
+      this.targetElement,
+      this.ts.scale
+    )
+
     // 변경전의 대각선 길이 값
     const mapDist = Math.hypot(
       beforeTargetSize.w * this.ts.scale,

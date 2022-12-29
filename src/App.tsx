@@ -49,8 +49,8 @@ function App() {
     const cc: DragZoom = new DragZoom(boxRef.current, dragRef.current, {
       restrictPosition: (currentXY, el, outOfBox) => {
         return cc.areaRestrictions(currentXY, {
-          type: 'inner',
-          threshold: 0,
+          type: 'outer',
+          threshold: -10 * cc.ts.scale,
         })
       },
     })
