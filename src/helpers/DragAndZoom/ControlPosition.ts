@@ -227,8 +227,6 @@ class ControlPosition {
     this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
     const restricted = this.restrictXY(this.ts.translate)
     if (this.compareXY(restricted, this.ts.translate)) {
-      console.log('test')
-
       this.ts.translate = restricted
       this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
     }
