@@ -146,18 +146,15 @@ class ControlPosition {
     return outOfBox
   }
   restrictXY = (currentPosition: { x: number; y: number }) => {
-    let { x, y } = currentPosition
-
-    if (!this.targetElement) return { x, y }
+    if (!this.targetElement) return currentPosition
+    if (!this.restrictPosition) {
+      return currentPosition
+    }
     const outOfBox = {
       inner: this.checkBoxLimit(currentPosition, 'inner'),
       outer: this.checkBoxLimit(currentPosition, 'outer'),
     } as OutOfBoxAll
-    if (!this.restrictPosition) {
-      return { x, y }
-    }
     const imageBound = this.targetElement.getBoundingClientRect()
-
     return this.restrictPosition(currentPosition, imageBound, outOfBox)
   }
   private decompose_2d_matrix = (mat: DOMMatrix): translateValues => {
@@ -223,10 +220,16 @@ class ControlPosition {
     }
     this.setTransform()
   }
+  private compareXY = (one: XY, two: XY) => {
+    return one.x !== two.x || one.y !== two.y
+  }
   setTransform = () => {
     this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
-    this.ts.translate = this.restrictXY(this.ts.translate)
-    this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
+    const restricted = this.restrictXY(this.ts.translate)
+    if (this.compareXY(restricted, this.ts.translate)) {
+      this.ts.translate = restricted
+      this.setTransform()
+    }
   }
   toggleRotation = (value: number) => {
     value = Math.abs(value)
