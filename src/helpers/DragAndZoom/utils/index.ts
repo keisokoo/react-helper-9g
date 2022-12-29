@@ -14,7 +14,7 @@ export const handleGetCurrentPoint = (
   scale: number
 ) => {
   const rec = targetElement.getBoundingClientRect()
-  return (point / 2 - rec.left) / scale
+  return (point - rec.left) / scale
 }
 export const handleGetBeforeTargetSize = (
   targetElement: HTMLElement,

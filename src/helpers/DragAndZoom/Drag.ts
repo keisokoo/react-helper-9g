@@ -113,8 +113,8 @@ class Drag extends ControlPosition {
     this.targetElement.ontouchmove = null
     // 늘어난 두 손가락간 거리
     const dist = Math.hypot(
-      firstTouch.clientX - secondTouch.clientX,
-      firstTouch.clientY - secondTouch.clientY
+      firstTouch.clientX - secondTouch.clientX / 2,
+      firstTouch.clientY - secondTouch.clientY / 2
     )
     // 두 손가락의 중앙값을 구합니다.
     const pinchCenterX = handleGetCurrentPoint(

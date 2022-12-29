@@ -2,7 +2,6 @@ import { OutOfBoxAll, TRANSFORM_VALUES, XY } from './types'
 import {
   handleCheckBoxLimit,
   handleDecompose2dMatrix,
-  handleGetBeforeTargetSize,
   handleGetCurrentPoint,
   handleGetRectSize,
   isTransformValues,
@@ -143,6 +142,10 @@ class ControlPosition {
       : this.targetElement.onwheel
     this.targetElement.onwheel = null
 
+    let rec = this.targetElement.getBoundingClientRect()
+    // let pointerX = (event.clientX - rec.left) / this.ts.scale
+    // let pointerY = (event.clientY - rec.top) / this.ts.scale
+
     const pointerX = handleGetCurrentPoint(
       this.targetElement,
       event.clientX,
@@ -158,10 +161,10 @@ class ControlPosition {
       return
     }
 
-    const beforeTargetSize = handleGetBeforeTargetSize(
-      this.targetElement,
-      this.ts.scale
-    )
+    const beforeTargetSize = {
+      w: Math.round(rec.width / this.ts.scale),
+      h: Math.round(rec.height / this.ts.scale),
+    }
     const factor = this.factor * this.ts.scale
 
     this.ts.scale = delta > 0 ? this.ts.scale + factor : this.ts.scale - factor
