@@ -79,19 +79,22 @@ class ControlPosition {
       y: option.disabled?.y,
     }
     if (!disabled.x) {
-      if (x < -maxSize.x - maxSize.offset.left) {
-        x = -maxSize.x - maxSize.offset.left
+      const xDiffOffset = maxSize.offset.right - maxSize.offset.left
+      if (x < -maxSize.x + xDiffOffset) {
+        x = -maxSize.x + xDiffOffset
       }
-      if (x > maxSize.x + maxSize.offset.right) {
-        x = maxSize.x + maxSize.offset.right
+      if (x > maxSize.x + xDiffOffset) {
+        x = maxSize.x + xDiffOffset
       }
     }
+
     if (!disabled.y) {
-      if (y < -maxSize.y - maxSize.offset.top) {
-        y = -maxSize.y - maxSize.offset.top
+      const yDiffOffset = maxSize.offset.bottom - maxSize.offset.top
+      if (y < -maxSize.y + yDiffOffset) {
+        y = -maxSize.y + yDiffOffset
       }
-      if (y > maxSize.y + maxSize.offset.bottom) {
-        y = maxSize.y + maxSize.offset.bottom
+      if (y > maxSize.y + yDiffOffset) {
+        y = maxSize.y + yDiffOffset
       }
     }
     return { x, y }
@@ -116,7 +119,7 @@ class ControlPosition {
     })
     const outOfBox = {
       inner: handleCheckBoxLimit(currentPosition, innerMaxSize),
-      outer: handleCheckBoxLimit(currentPosition, outerMaxSize),
+      outer: handleCheckBoxLimit(currentPosition, outerMaxSize, 'outer'),
     } as OutOfBoxAll
     const imageBound = this.targetElement.getBoundingClientRect()
     return this.restrictPosition(currentPosition, imageBound, outOfBox)

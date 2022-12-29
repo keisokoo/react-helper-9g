@@ -55,6 +55,7 @@ export const handleGetRectSize = (
   let restrictBound = option.restrictElement?.getBoundingClientRect()
 
   const areaType = option.type === 'inner' ? 1 : -1
+  const areaForOuter = option.type === 'inner' ? 0 : 1
   const threshold = option.threshold ?? 0
   let rectSize = {
     w: targetBound.width * areaType,
@@ -68,6 +69,8 @@ export const handleGetRectSize = (
       left: 0,
       right: 0,
       bottom: 0,
+      width: 0,
+      height: 0,
     },
   }
   if (restrictBound) {
@@ -75,35 +78,46 @@ export const handleGetRectSize = (
       w: restrictBound.width * areaType,
       h: restrictBound.height * areaType,
     }
+    maxSize.x = bound.width / 2 - restrictSize.w / 2 + threshold
+    maxSize.y = bound.height / 2 - restrictSize.h / 2 + threshold
+    maxSize.offset.width = restrictBound.width
+    maxSize.offset.height = restrictBound.height
 
-    let portraitOffset = Math.abs(rectSize.h - restrictSize.h)
-    let horizontalOffset = Math.abs(rectSize.w - restrictSize.w)
+    let portraitOffset = Math.abs(rectSize.h - restrictBound.height)
+    let horizontalOffset = Math.abs(rectSize.w - restrictBound.width)
     if (portraitOffset !== 0) {
-      maxSize.offset.bottom = portraitOffset
-      if (option.restrictElement) {
-      }
+      maxSize.offset.bottom =
+        portraitOffset / 2 - maxSize.offset.height * areaForOuter
       if (targetBound.top - restrictBound.top) {
-        maxSize.offset.top = Math.abs(targetBound.top - restrictBound.top)
+        maxSize.offset.top = Math.abs(targetBound.top - restrictBound.top) / 2
         maxSize.offset.bottom = Math.abs(
-          portraitOffset - Math.abs(targetBound.top - restrictBound.top)
+          maxSize.offset.bottom -
+            Math.abs(targetBound.top - restrictBound.top) / 2
         )
       }
     }
-
     if (horizontalOffset !== 0) {
-      maxSize.offset.right = horizontalOffset
+      maxSize.offset.right =
+        horizontalOffset / 2 - maxSize.offset.width * areaForOuter
       if (targetBound.left - restrictBound.left) {
-        maxSize.offset.left = Math.abs(targetBound.left - restrictBound.left)
+        maxSize.offset.left =
+          Math.abs(targetBound.left - restrictBound.left) / 2
         maxSize.offset.right = Math.abs(
-          horizontalOffset - Math.abs(targetBound.left - restrictBound.left)
+          maxSize.offset.right -
+            Math.abs(targetBound.left - restrictBound.left) / 2
         )
       }
     }
   }
+
   return maxSize
 }
 
-export const handleCheckBoxLimit = (currentPosition: XY, maxSize: MAX_SIZE) => {
+export const handleCheckBoxLimit = (
+  currentPosition: XY,
+  maxSize: MAX_SIZE,
+  type?: string
+) => {
   let { x, y } = currentPosition
   let outOfBox = {
     x: {
@@ -115,16 +129,18 @@ export const handleCheckBoxLimit = (currentPosition: XY, maxSize: MAX_SIZE) => {
       bottom: false,
     },
   }
-  if (x < -maxSize.x - maxSize.offset.left) {
+  const xDiffOffset = maxSize.offset.right - maxSize.offset.left
+  const yDiffOffset = maxSize.offset.bottom - maxSize.offset.top
+  if (x < -maxSize.x + xDiffOffset) {
     outOfBox.x['left'] = true
   }
-  if (x > maxSize.x + maxSize.offset.right) {
+  if (x > maxSize.x + xDiffOffset) {
     outOfBox.x['right'] = true
   }
-  if (y < -maxSize.y - maxSize.offset.top) {
+  if (y < -maxSize.y + yDiffOffset) {
     outOfBox.y['top'] = true
   }
-  if (y > maxSize.y + maxSize.offset.bottom) {
+  if (y > maxSize.y + yDiffOffset) {
     outOfBox.y['bottom'] = true
   }
   return outOfBox

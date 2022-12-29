@@ -30,5 +30,7 @@ export type MAX_SIZE = {
     left: number
     right: number
     bottom: number
+    width: number
+    height: number
   }
 }

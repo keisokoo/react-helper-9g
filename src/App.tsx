@@ -25,7 +25,7 @@ const Wrap = styled.div`
 `
 const Target = styled.div`
   width: 100px;
-  height: 200px;
+  height: 300px;
   background-color: #ccc;
   position: relative;
   h1 {
@@ -34,7 +34,18 @@ const Target = styled.div`
     width: 100%;
     padding: 16px;
     background-color: #ffff00;
-    margin: 44px auto;
+    margin: 0px auto;
+  }
+  h2 {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 16px;
+    background-color: #1aff00;
+    margin: 0px auto;
   }
 `
 const RotateTestButton = styled.button`
@@ -61,8 +72,8 @@ function App() {
       restrictElement: headerRef.current,
       restrictPosition: (currentXY, el, outOfBox) => {
         return cc.areaRestrictions(currentXY, {
-          type: 'outer',
-          threshold: -16 * cc.ts.scale,
+          type: 'inner',
+          threshold: -25 * cc.ts.scale,
         })
       },
     })
@@ -74,16 +85,15 @@ function App() {
         ref={dragRef}
         onWheel={ctr?.onWheel}
         tabIndex={0}
-        onTouchStart={ctr?.onPinchStart}
+        onTouchStart={(e) => {
+          ctr?.onPinchStart(e)
+          ctr?.onDragStart(e)
+        }}
+        onMouseDown={ctr?.onDragStart}
       >
         <Target ref={boxRef}>
-          <h1
-            ref={headerRef}
-            onMouseDown={ctr?.onDragStart}
-            onTouchStart={ctr?.onDragStart}
-          >
-            h({rotation})
-          </h1>
+          <h1 ref={headerRef}>h({rotation})</h1>
+          <h2>haha</h2>
         </Target>
       </Wrap>
       <RotateTestButton
