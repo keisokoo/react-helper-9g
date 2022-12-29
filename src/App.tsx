@@ -48,15 +48,10 @@ function App() {
   useEffect(() => {
     const cc: DragZoom = new DragZoom(boxRef.current, dragRef.current, {
       restrictPosition: (currentXY, el, outOfBox) => {
-        if (outOfBox.inner.x.left) {
-          console.log('outOfBox.inner.x.left', outOfBox.inner.x.left)
-        }
-        if (outOfBox.inner.x.right) {
-          console.log('outOfBox.inner.x.right', outOfBox.inner.x.right)
-        }
         return cc.areaRestrictions(currentXY, {
-          type: 'outer',
+          type: 'inner',
           threshold: -10 * cc.ts.scale,
+          disabled: { y: true },
         })
       },
     })

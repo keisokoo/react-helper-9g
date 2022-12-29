@@ -90,17 +90,29 @@ class ControlPosition {
     option: {
       type?: 'inner' | 'outer'
       threshold?: number
+      disabled?: {
+        x?: boolean
+        y?: boolean
+      }
     } = {
       type: 'inner',
       threshold: 0,
+      disabled: {
+        x: false,
+        y: false,
+      },
     }
   ) => {
     let { x, y } = currentPosition
     const { maxSize } = this.getRectSize(option)
-    if (Math.abs(x) > maxSize.x) {
+    const disabled = {
+      x: option.disabled?.x,
+      y: option.disabled?.y,
+    }
+    if (Math.abs(x) > maxSize.x && !disabled.x) {
       x = x < 0 ? -maxSize.x : maxSize.x
     }
-    if (Math.abs(y) > maxSize.y) {
+    if (Math.abs(y) > maxSize.y && !disabled.y) {
       y = y < 0 ? -maxSize.y : maxSize.y
     }
     return { x, y }
