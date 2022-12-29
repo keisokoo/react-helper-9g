@@ -52,7 +52,6 @@ class TouchDragZoom extends Drag {
         this.previousPosition.x + invert * (-x + this.startPoint.x)
       this.ts.translate.y =
         this.previousPosition.y + invert * (-y + this.startPoint.y)
-      this.ts.translate = this.restrictXY(this.ts.translate)
       this.setTransform()
 
       this.velocity = {
@@ -114,7 +113,6 @@ class TouchDragZoom extends Drag {
       this.ts.translate.x += -(pinchCenterX * m * 2) + beforeTargetSize.w * m
       this.ts.translate.y += -(pinchCenterY * m * 2) + beforeTargetSize.h * m
 
-      this.ts.translate = this.restrictXY(this.ts.translate)
       // 스케일 업데이트
       this.ts.scale = restrictScale
       // 좌표 업데이트

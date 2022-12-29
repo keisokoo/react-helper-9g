@@ -43,7 +43,6 @@ class Drag extends ControlPosition {
 
     this.ts.translate.x = Math.round(this.ts.translate.x + this.velocity.x)
     this.ts.translate.y = Math.round(this.ts.translate.y + this.velocity.y)
-    this.ts.translate = this.restrictXY(this.ts.translate)
     this.setTransform()
     if (
       Math.floor(Math.abs(this.velocity.x)) !== 0 ||

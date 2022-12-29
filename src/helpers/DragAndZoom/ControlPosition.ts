@@ -222,10 +222,10 @@ class ControlPosition {
       this.ts = value(this.getPosition())
     }
     this.setTransform()
-    this.ts.translate = this.restrictXY(this.ts.translate)
-    this.setTransform()
   }
   setTransform = () => {
+    this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
+    this.ts.translate = this.restrictXY(this.ts.translate)
     this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
   }
   toggleRotation = (value: number) => {

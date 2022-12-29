@@ -38,7 +38,6 @@ class ClickDrag extends Drag {
       this.previousPosition.x + invert * (-x + this.startPoint.x)
     this.ts.translate.y =
       this.previousPosition.y + invert * (-y + this.startPoint.y)
-    this.ts.translate = this.restrictXY(this.ts.translate)
     this.setTransform()
 
     this.velocity = {
