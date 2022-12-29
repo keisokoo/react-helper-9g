@@ -45,6 +45,7 @@ export const handleGetRectSize = (
     type?: 'inner' | 'outer'
     threshold?: number
     areaElement?: HTMLElement
+    restrictElement?: HTMLElement
   } = {
     type: 'inner',
     threshold: 0,
@@ -54,16 +55,51 @@ export const handleGetRectSize = (
     ? option.areaElement.getBoundingClientRect()
     : document.body.getBoundingClientRect()
   let targetBound = targetElement.getBoundingClientRect()
+  let restrictBound = option.restrictElement?.getBoundingClientRect()
 
   const areaType = option.type === 'inner' ? 1 : -1
   const threshold = option.threshold ?? 0
-  const rectSize = {
+  let rectSize = {
     w: targetBound.width * areaType,
     h: targetBound.height * areaType,
   }
-  const maxSize = {
+  let maxSize = {
     x: bound.width / 2 - rectSize.w / 2 + threshold,
     y: bound.height / 2 - rectSize.h / 2 + threshold,
+    offset: {
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+  }
+  if (restrictBound) {
+    let restrictSize = {
+      w: restrictBound.width * areaType,
+      h: restrictBound.height * areaType,
+    }
+
+    let portraitOffset = Math.abs(rectSize.h - restrictSize.h)
+    let horizontalOffset = Math.abs(rectSize.w - restrictSize.w)
+    if (portraitOffset !== 0) {
+      maxSize.offset.bottom = portraitOffset
+      if (option.restrictElement?.offsetTop) {
+        maxSize.offset.top = option.restrictElement.offsetTop
+        maxSize.offset.bottom = Math.abs(
+          portraitOffset - option.restrictElement.offsetTop
+        )
+      }
+    }
+
+    if (horizontalOffset !== 0) {
+      maxSize.offset.right = horizontalOffset
+      if (option.restrictElement?.offsetLeft) {
+        maxSize.offset.left = option.restrictElement.offsetLeft
+        maxSize.offset.right = Math.abs(
+          horizontalOffset - option.restrictElement.offsetLeft
+        )
+      }
+    }
   }
   return {
     rectSize,
@@ -75,7 +111,8 @@ export const handleCheckBoxLimit = (
   targetElement: HTMLElement,
   currentPosition: { x: number; y: number },
   type: 'inner' | 'outer',
-  areaElement?: HTMLElement
+  areaElement?: HTMLElement,
+  restrictElement?: HTMLElement
 ) => {
   let { x, y } = currentPosition
   let outOfBox = {
@@ -92,14 +129,19 @@ export const handleCheckBoxLimit = (
     type,
     threshold: 0,
     areaElement,
+    restrictElement,
   })
-  const xPosition: 'left' | 'right' = x < 0 ? 'left' : 'right'
-  const yPosition: 'top' | 'bottom' = y < 0 ? 'top' : 'bottom'
-  if (Math.abs(x) > maxSize.x) {
-    outOfBox.x[xPosition] = true
+  if (x < -maxSize.x - maxSize.offset.left) {
+    outOfBox.x['left'] = true
   }
-  if (Math.abs(y) > maxSize.y) {
-    outOfBox.y[yPosition] = true
+  if (x > maxSize.x + maxSize.offset.right) {
+    outOfBox.x['right'] = true
+  }
+  if (y < -maxSize.y - maxSize.offset.top) {
+    outOfBox.y['top'] = true
+  }
+  if (y > maxSize.y + maxSize.offset.bottom) {
+    outOfBox.y['bottom'] = true
   }
   return outOfBox
 }

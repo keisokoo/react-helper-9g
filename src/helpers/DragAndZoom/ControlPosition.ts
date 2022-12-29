@@ -25,9 +25,11 @@ class ControlPosition {
     outOfBox: OutOfBoxAll
   ) => XY
   areaElement?: HTMLElement
+  restrictElement?: HTMLElement
   constructor(
     public targetElement: HTMLElement,
     configs?: {
+      restrictElement?: HTMLElement
       areaElement?: HTMLElement
       factor?: number
       minScale?: number
@@ -39,6 +41,7 @@ class ControlPosition {
       ) => XY
     }
   ) {
+    if (configs?.restrictElement) this.restrictElement = configs.restrictElement
     if (configs?.areaElement) this.areaElement = configs.areaElement
     if (configs?.factor) this.factor = configs.factor
     if (configs?.minScale) this.minScale = configs.minScale
@@ -55,6 +58,7 @@ class ControlPosition {
         x?: boolean
         y?: boolean
       }
+      restrictElement?: HTMLElement
     } = {
       type: 'inner',
       threshold: 0,
@@ -68,16 +72,27 @@ class ControlPosition {
     const { maxSize } = handleGetRectSize(this.targetElement, {
       ...option,
       areaElement: this.areaElement,
+      restrictElement: option.restrictElement ?? this.restrictElement,
     })
     const disabled = {
       x: option.disabled?.x,
       y: option.disabled?.y,
     }
-    if (Math.abs(x) > maxSize.x && !disabled.x) {
-      x = x < 0 ? -maxSize.x : maxSize.x
+    if (!disabled.x) {
+      if (x < -maxSize.x - maxSize.offset.left) {
+        x = -maxSize.x - maxSize.offset.left
+      }
+      if (x > maxSize.x + maxSize.offset.right) {
+        x = maxSize.x + maxSize.offset.right
+      }
     }
-    if (Math.abs(y) > maxSize.y && !disabled.y) {
-      y = y < 0 ? -maxSize.y : maxSize.y
+    if (!disabled.y) {
+      if (y < -maxSize.y - maxSize.offset.top) {
+        y = -maxSize.y - maxSize.offset.top
+      }
+      if (y > maxSize.y + maxSize.offset.bottom) {
+        y = maxSize.y + maxSize.offset.bottom
+      }
     }
     return { x, y }
   }
@@ -91,13 +106,15 @@ class ControlPosition {
         this.targetElement,
         currentPosition,
         'inner',
-        this.areaElement
+        this.areaElement,
+        this.restrictElement
       ),
       outer: handleCheckBoxLimit(
         this.targetElement,
         currentPosition,
         'outer',
-        this.areaElement
+        this.areaElement,
+        this.restrictElement
       ),
     } as OutOfBoxAll
     const imageBound = this.targetElement.getBoundingClientRect()

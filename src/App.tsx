@@ -28,11 +28,12 @@ const Target = styled.div`
   height: 200px;
   background-color: #ccc;
   h1 {
+    font-size: 16px;
     box-sizing: border-box;
     width: 100%;
     padding: 16px;
     background-color: #ffff00;
-    margin: 0 auto;
+    margin: 44px auto;
   }
 `
 const RotateTestButton = styled.button`
@@ -49,16 +50,18 @@ function App() {
   const dragRef = useRef() as MutableRefObject<HTMLDivElement>
   const eventRef = useRef() as MutableRefObject<HTMLDivElement>
   const boxRef = useRef() as MutableRefObject<HTMLDivElement>
+  const headerRef = useRef() as MutableRefObject<HTMLDivElement>
 
   const [rotation, set_rotation] = useState<number>(0)
   const [ctr, set_ctr] = useState<DragOrPinchZoom>()
   useEffect(() => {
     const cc: DragOrPinchZoom = new DragOrPinchZoom(boxRef.current, {
       areaElement: dragRef.current,
+      restrictElement: headerRef.current,
       restrictPosition: (currentXY, el, outOfBox) => {
         return cc.areaRestrictions(currentXY, {
-          type: 'outer',
-          threshold: -10 * cc.ts.scale,
+          type: 'inner',
+          threshold: 0,
         })
       },
     })
@@ -73,7 +76,11 @@ function App() {
         onTouchStart={ctr?.onPinchStart}
       >
         <Target ref={boxRef}>
-          <h1 onMouseDown={ctr?.onDragStart} onTouchStart={ctr?.onDragStart}>
+          <h1
+            ref={headerRef}
+            onMouseDown={ctr?.onDragStart}
+            onTouchStart={ctr?.onDragStart}
+          >
             h({rotation})
           </h1>
         </Target>
