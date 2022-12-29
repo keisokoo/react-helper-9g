@@ -4,6 +4,7 @@ class DragOrPinchZoom extends Drag {
   onDragStart = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
+    event.stopPropagation()
     this.ts = this.getPosition()
     cancelAnimationFrame(this.inertiaAnimationFrame)
     this.dragOn(event)
@@ -22,6 +23,7 @@ class DragOrPinchZoom extends Drag {
     }
   }
   private onDragMove = (event: TouchEvent | MouseEvent) => {
+    event.stopPropagation()
     // 드래그 이벤트 (현재 없음)
     if (
       this.isDrag &&
@@ -35,6 +37,7 @@ class DragOrPinchZoom extends Drag {
     }
   }
   private onDragEnd = (event: TouchEvent | MouseEvent) => {
+    event.stopPropagation()
     const eventTarget = event.currentTarget! as HTMLElement
     if (isTouchEvent(event)) {
       eventTarget.removeEventListener('touchmove', this.onDragMove)
