@@ -26,8 +26,8 @@ class ControlPosition {
   ) => XY
   areaElement?: HTMLElement
   restrictElement?: HTMLElement
-  beforeFire?: () => void
-  afterFire?: () => void
+  beforeFire?: (target: HTMLElement) => void
+  afterFire?: (target: HTMLElement) => void
   beforeUpdate?: (ts: TRANSFORM_VALUES) => void
   afterUpdate?: (ts: TRANSFORM_VALUES) => void
   constructor(
@@ -38,8 +38,8 @@ class ControlPosition {
       factor?: number
       minScale?: number
       maxScale?: number
-      beforeFire?: () => void
-      afterFire?: () => void
+      beforeFire?: (target: HTMLElement) => void
+      afterFire?: (target: HTMLElement) => void
       beforeUpdate?: (ts: TRANSFORM_VALUES) => void
       afterUpdate?: (ts: TRANSFORM_VALUES) => void
       restrictPosition?: (
@@ -53,7 +53,7 @@ class ControlPosition {
     if (configs?.afterUpdate) this.afterUpdate = configs.afterUpdate
     if (configs?.beforeFire) this.beforeFire = configs.beforeFire
     if (configs?.afterFire) this.afterFire = configs.afterFire
-    if (configs?.areaElement) this.areaElement = configs.areaElement
+    if (configs?.restrictElement) this.restrictElement = configs.restrictElement
     if (configs?.areaElement) this.areaElement = configs.areaElement
     if (configs?.factor) this.factor = configs.factor
     if (configs?.minScale) this.minScale = configs.minScale
@@ -81,6 +81,7 @@ class ControlPosition {
     }
   ) => {
     let { x, y } = currentPosition
+
     const maxSize = handleGetRectSize(this.targetElement, {
       ...option,
       areaElement: this.areaElement,
@@ -173,7 +174,7 @@ class ControlPosition {
   }
   onWheel = (event: React.WheelEvent | WheelEvent) => {
     if (!this.targetElement) return
-    if (this.beforeFire) this.beforeFire()
+    if (this.beforeFire) this.beforeFire(this.targetElement)
     this.ts = this.getPosition()
 
     const eventTarget = event.currentTarget! as HTMLElement
@@ -220,7 +221,7 @@ class ControlPosition {
     this.ts.translate.x += -pointerX * m * 2 + beforeTargetSize.w * m
     this.ts.translate.y += -pointerY * m * 2 + beforeTargetSize.h * m
     this.setTransform()
-    if (this.afterFire) this.afterFire()
+    if (this.afterFire) this.afterFire(this.targetElement)
     eventTarget.onwheel = func
   }
 }

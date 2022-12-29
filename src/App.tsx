@@ -12,6 +12,7 @@ const Container = styled.div`
   & > * {
     box-sizing: border-box;
   }
+  cursor: grab;
 `
 const Wrap = styled.div`
   width: 100%;
@@ -28,21 +29,24 @@ const Target = styled.div`
   height: 300px;
   background-color: #ccc;
   position: relative;
+  padding: 0 4px;
+  box-sizing: border-box;
   h1 {
     font-size: 16px;
     box-sizing: border-box;
     width: 100%;
     padding: 16px;
     background-color: #ffff00;
-    margin: 0px auto;
+    margin: 10px auto;
   }
   h2 {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 16px;
     box-sizing: border-box;
-    width: 100%;
+    width: calc(100% - 24px);
     padding: 16px;
     background-color: #1aff00;
     margin: 0px auto;
@@ -63,21 +67,31 @@ function App() {
   const eventRef = useRef() as MutableRefObject<HTMLDivElement>
   const boxRef = useRef() as MutableRefObject<HTMLDivElement>
   const headerRef = useRef() as MutableRefObject<HTMLDivElement>
+  const anotherRef = useRef() as MutableRefObject<HTMLDivElement>
 
   const [rotation, set_rotation] = useState<number>(0)
   const [ctr, set_ctr] = useState<DragOrPinchZoom>()
   useEffect(() => {
     const cc: DragOrPinchZoom = new DragOrPinchZoom(boxRef.current, {
       areaElement: dragRef.current,
-      restrictElement: headerRef.current,
+      restrictElement: anotherRef.current,
       restrictPosition: (currentXY, el, outOfBox) => {
         return cc.areaRestrictions(currentXY, {
           type: 'inner',
           threshold: 0 * cc.ts.scale,
         })
       },
+      beforeFire() {
+        eventRef.current.style.cursor = 'grabbing'
+      },
+      afterFire() {
+        eventRef.current.style.cursor = ''
+      },
     })
     set_ctr(cc)
+    window.addEventListener('resize', () => {
+      cc.setTransform()
+    })
   }, [])
   return (
     <Container ref={eventRef}>
@@ -93,7 +107,7 @@ function App() {
       >
         <Target ref={boxRef}>
           <h1 ref={headerRef}>h({rotation})</h1>
-          <h2>haha</h2>
+          <h2 ref={anotherRef}>ha ha</h2>
         </Target>
       </Wrap>
       <RotateTestButton
