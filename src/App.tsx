@@ -27,6 +27,7 @@ const Target = styled.div`
   width: 100px;
   height: 200px;
   background-color: #ccc;
+  position: relative;
   h1 {
     font-size: 16px;
     box-sizing: border-box;

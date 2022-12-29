@@ -21,3 +21,14 @@ export type OutOfBoxAll = {
   inner: OutOfBox
   outer: OutOfBox
 }
+
+export type MAX_SIZE = {
+  x: number
+  y: number
+  offset: {
+    top: number
+    left: number
+    right: number
+    bottom: number
+  }
+}

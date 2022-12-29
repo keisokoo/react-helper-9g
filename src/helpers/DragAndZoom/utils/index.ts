@@ -1,4 +1,4 @@
-import { TRANSFORM_VALUES } from '../types'
+import { MAX_SIZE, TRANSFORM_VALUES, XY } from '../types'
 
 export const isTransformValues = (value: any): value is TRANSFORM_VALUES => {
   return (
@@ -46,9 +46,6 @@ export const handleGetRectSize = (
     threshold?: number
     areaElement?: HTMLElement
     restrictElement?: HTMLElement
-  } = {
-    type: 'inner',
-    threshold: 0,
   }
 ) => {
   let bound = option.areaElement
@@ -83,37 +80,30 @@ export const handleGetRectSize = (
     let horizontalOffset = Math.abs(rectSize.w - restrictSize.w)
     if (portraitOffset !== 0) {
       maxSize.offset.bottom = portraitOffset
-      if (option.restrictElement?.offsetTop) {
-        maxSize.offset.top = option.restrictElement.offsetTop
+      if (option.restrictElement) {
+      }
+      if (targetBound.top - restrictBound.top) {
+        maxSize.offset.top = Math.abs(targetBound.top - restrictBound.top)
         maxSize.offset.bottom = Math.abs(
-          portraitOffset - option.restrictElement.offsetTop
+          portraitOffset - Math.abs(targetBound.top - restrictBound.top)
         )
       }
     }
 
     if (horizontalOffset !== 0) {
       maxSize.offset.right = horizontalOffset
-      if (option.restrictElement?.offsetLeft) {
-        maxSize.offset.left = option.restrictElement.offsetLeft
+      if (targetBound.left - restrictBound.left) {
+        maxSize.offset.left = Math.abs(targetBound.left - restrictBound.left)
         maxSize.offset.right = Math.abs(
-          horizontalOffset - option.restrictElement.offsetLeft
+          horizontalOffset - Math.abs(targetBound.left - restrictBound.left)
         )
       }
     }
   }
-  return {
-    rectSize,
-    maxSize,
-  }
+  return maxSize
 }
 
-export const handleCheckBoxLimit = (
-  targetElement: HTMLElement,
-  currentPosition: { x: number; y: number },
-  type: 'inner' | 'outer',
-  areaElement?: HTMLElement,
-  restrictElement?: HTMLElement
-) => {
+export const handleCheckBoxLimit = (currentPosition: XY, maxSize: MAX_SIZE) => {
   let { x, y } = currentPosition
   let outOfBox = {
     x: {
@@ -125,12 +115,6 @@ export const handleCheckBoxLimit = (
       bottom: false,
     },
   }
-  const { maxSize } = handleGetRectSize(targetElement, {
-    type,
-    threshold: 0,
-    areaElement,
-    restrictElement,
-  })
   if (x < -maxSize.x - maxSize.offset.left) {
     outOfBox.x['left'] = true
   }

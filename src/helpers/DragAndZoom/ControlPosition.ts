@@ -69,7 +69,7 @@ class ControlPosition {
     }
   ) => {
     let { x, y } = currentPosition
-    const { maxSize } = handleGetRectSize(this.targetElement, {
+    const maxSize = handleGetRectSize(this.targetElement, {
       ...option,
       areaElement: this.areaElement,
       restrictElement: option.restrictElement ?? this.restrictElement,
@@ -101,21 +101,22 @@ class ControlPosition {
     if (!this.restrictPosition) {
       return currentPosition
     }
+    const options = {
+      threshold: 0,
+      areaElement: this.areaElement,
+      restrictElement: this.restrictElement,
+    }
+    const innerMaxSize = handleGetRectSize(this.targetElement, {
+      ...options,
+      type: 'inner',
+    })
+    const outerMaxSize = handleGetRectSize(this.targetElement, {
+      ...options,
+      type: 'outer',
+    })
     const outOfBox = {
-      inner: handleCheckBoxLimit(
-        this.targetElement,
-        currentPosition,
-        'inner',
-        this.areaElement,
-        this.restrictElement
-      ),
-      outer: handleCheckBoxLimit(
-        this.targetElement,
-        currentPosition,
-        'outer',
-        this.areaElement,
-        this.restrictElement
-      ),
+      inner: handleCheckBoxLimit(currentPosition, innerMaxSize),
+      outer: handleCheckBoxLimit(currentPosition, outerMaxSize),
     } as OutOfBoxAll
     const imageBound = this.targetElement.getBoundingClientRect()
     return this.restrictPosition(currentPosition, imageBound, outOfBox)
