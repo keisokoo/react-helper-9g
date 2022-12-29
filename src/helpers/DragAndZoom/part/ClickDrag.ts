@@ -21,41 +21,7 @@ class ClickDrag extends Drag {
     eventTarget.addEventListener('mouseleave', this.onEnd)
   }
   private onMove = (event: MouseEvent) => {
-    if (!this.targetElement) return
-    // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
-    let func = this.eventElement
-      ? this.eventElement.ontouchmove
-      : this.targetElement.ontouchmove
-    this.targetElement.ontouchmove = null
-
-    const x = event.pageX
-    const y = event.pageY
-    const oldX = this.ts.translate.x
-    const oldY = this.ts.translate.y
-    const isInvert = false
-    const invert = isInvert ? 1 : -1
-    this.ts.translate.x =
-      this.previousPosition.x + invert * (-x + this.startPoint.x)
-    this.ts.translate.y =
-      this.previousPosition.y + invert * (-y + this.startPoint.y)
-    this.setTransform()
-
-    this.velocity = {
-      x: this.ts.translate.x - oldX,
-      y: this.ts.translate.y - oldY,
-    }
-    if (
-      Math.abs(this.velocity.x) > this.threshold ||
-      Math.abs(this.velocity.y) > this.threshold
-    )
-      this.dragged = true
-    // 핀치 이벤트
-    // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
-    if (this.eventElement) {
-      this.eventElement.ontouchmove = func
-    } else {
-      this.targetElement.ontouchmove = func
-    }
+    this.fireDrag(event.pageX, event.pageY)
   }
   private onEnd = (event: MouseEvent) => {
     const eventTarget = this.eventElement ?? this.targetElement
