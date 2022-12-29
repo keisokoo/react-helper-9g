@@ -38,7 +38,26 @@ class Drag extends ControlPosition {
 
     return value
   }
-  fireOn = (
+  dragOn = (
+    event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
+  ) => {
+    const currentTarget = event.currentTarget! as HTMLElement
+    currentTarget.style.userSelect = 'none'
+    this.ts = this.getPosition()
+    cancelAnimationFrame(this.inertiaAnimationFrame)
+    this.isDrag = true
+    this.isScale = false
+    this.startPoint = {
+      x: isTouchEvent(event) ? event.touches[0].pageX : event.pageX,
+      y: isTouchEvent(event) ? event.touches[0].pageY : event.pageY,
+    }
+    this.previousPosition = {
+      x: this.ts.translate.x,
+      y: this.ts.translate.y,
+    }
+    this.velocity = { x: 0, y: 0 }
+  }
+  pinchOn = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
     this.ts = this.getPosition()
@@ -53,27 +72,21 @@ class Drag extends ControlPosition {
       )
       // 터치 시작시 스케일
       this.startScale = this.ts.scale
+    }
+  }
+  fireOn = (
+    event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
+  ) => {
+    this.ts = this.getPosition()
+    cancelAnimationFrame(this.inertiaAnimationFrame)
+    if (isTouchEvent(event) && event.touches.length === 2) {
+      this.pinchOn(event)
     } else {
-      this.isDrag = true
-      this.isScale = false
-      this.startPoint = {
-        x: isTouchEvent(event) ? event.touches[0].pageX : event.pageX,
-        y: isTouchEvent(event) ? event.touches[0].pageY : event.pageY,
-      }
-      this.previousPosition = {
-        x: this.ts.translate.x,
-        y: this.ts.translate.y,
-      }
-      this.velocity = { x: 0, y: 0 }
+      this.dragOn(event)
     }
   }
   fireDrag = (x: number, y: number) => {
     if (!this.targetElement) return
-    // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
-    let func = this.eventElement
-      ? this.eventElement.ontouchmove
-      : this.targetElement.ontouchmove
-    this.targetElement.ontouchmove = null
 
     const oldX = this.ts.translate.x
     const oldY = this.ts.translate.y
@@ -94,23 +107,12 @@ class Drag extends ControlPosition {
       Math.abs(this.velocity.y) > this.threshold
     )
       this.dragged = true
-    // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
-    if (this.eventElement) {
-      this.eventElement.ontouchmove = func
-    } else {
-      this.targetElement.ontouchmove = func
-    }
   }
   firePinch = (
     firstTouch: Touch | React.Touch,
     secondTouch: Touch | React.Touch
   ) => {
     if (!this.targetElement) return
-    // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
-    let func = this.eventElement
-      ? this.eventElement.ontouchmove
-      : this.targetElement.ontouchmove
-    this.targetElement.ontouchmove = null
     // 늘어난 두 손가락간 거리
     const dist = Math.hypot(
       firstTouch.clientX - secondTouch.clientX / 2,
@@ -120,12 +122,14 @@ class Drag extends ControlPosition {
     const pinchCenterX = handleGetCurrentPoint(
       this.targetElement,
       firstTouch.clientX + secondTouch.clientX,
-      this.ts.scale
+      this.ts.scale,
+      'left'
     )
     const pinchCenterY = handleGetCurrentPoint(
       this.targetElement,
       firstTouch.clientY + secondTouch.clientY,
-      this.ts.scale
+      this.ts.scale,
+      'top'
     )
 
     // 변경전 실제 길이값, ( 회전할 경우를 width,height값의 기준이 변경되므로 offsetWidth를 쓰지않는다.)
@@ -164,17 +168,12 @@ class Drag extends ControlPosition {
     this.ts.scale = restrictScale
     // 좌표 업데이트
     this.setTransform()
-
-    // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
-    if (this.eventElement) {
-      this.eventElement.ontouchmove = func
-    } else {
-      this.targetElement.ontouchmove = func
-    }
   }
   fireEnd = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
+    const currentTarget = event.currentTarget! as HTMLElement
+    currentTarget.style.userSelect = ''
     cancelAnimationFrame(this.inertiaAnimationFrame)
     if (this.dragged && this.isDrag) {
       this.dragFinish()

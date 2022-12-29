@@ -3,7 +3,7 @@ import Drag from '../Drag'
 class TouchDragZoom extends Drag {
   onTouch = (event: TouchEvent | React.TouchEvent) => {
     this.fireOn(event)
-    const eventTarget = this.eventElement ?? this.targetElement
+    const eventTarget = event.currentTarget! as HTMLElement
     eventTarget.addEventListener('touchmove', this.onMove, { passive: true })
     eventTarget.addEventListener('touchend', this.onEnd)
   }
@@ -21,7 +21,7 @@ class TouchDragZoom extends Drag {
     }
   }
   private onEnd = (event: TouchEvent | React.TouchEvent) => {
-    const eventTarget = this.eventElement ?? this.targetElement
+    const eventTarget = event.currentTarget! as HTMLElement
     eventTarget.removeEventListener('touchmove', this.onMove)
     eventTarget.removeEventListener('touchend', this.onEnd)
     this.fireEnd(event)

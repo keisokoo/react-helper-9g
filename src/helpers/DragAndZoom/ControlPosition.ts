@@ -24,10 +24,11 @@ class ControlPosition {
     targetEl: DOMRect,
     outOfBox: OutOfBoxAll
   ) => XY
+  areaElement?: HTMLElement
   constructor(
     public targetElement: HTMLElement,
-    public eventElement?: HTMLElement,
     configs?: {
+      areaElement?: HTMLElement
       factor?: number
       minScale?: number
       maxScale?: number
@@ -38,6 +39,7 @@ class ControlPosition {
       ) => XY
     }
   ) {
+    if (configs?.areaElement) this.areaElement = configs.areaElement
     if (configs?.factor) this.factor = configs.factor
     if (configs?.minScale) this.minScale = configs.minScale
     if (configs?.maxScale) this.maxScale = configs.maxScale
@@ -63,11 +65,10 @@ class ControlPosition {
     }
   ) => {
     let { x, y } = currentPosition
-    const { maxSize } = handleGetRectSize(
-      this.targetElement,
-      option,
-      this.eventElement
-    )
+    const { maxSize } = handleGetRectSize(this.targetElement, {
+      ...option,
+      areaElement: this.areaElement,
+    })
     const disabled = {
       x: option.disabled?.x,
       y: option.disabled?.y,
@@ -90,13 +91,13 @@ class ControlPosition {
         this.targetElement,
         currentPosition,
         'inner',
-        this.eventElement
+        this.areaElement
       ),
       outer: handleCheckBoxLimit(
         this.targetElement,
         currentPosition,
         'outer',
-        this.eventElement
+        this.areaElement
       ),
     } as OutOfBoxAll
     const imageBound = this.targetElement.getBoundingClientRect()
@@ -137,10 +138,9 @@ class ControlPosition {
     if (!this.targetElement) return
     this.ts = this.getPosition()
 
-    let func = this.eventElement
-      ? this.eventElement.onwheel
-      : this.targetElement.onwheel
-    this.targetElement.onwheel = null
+    const eventTarget = event.currentTarget! as HTMLElement
+    let func = eventTarget.onwheel
+    eventTarget.onwheel = null
 
     let rec = this.targetElement.getBoundingClientRect()
     // let pointerX = (event.clientX - rec.left) / this.ts.scale
@@ -149,12 +149,14 @@ class ControlPosition {
     const pointerX = handleGetCurrentPoint(
       this.targetElement,
       event.clientX,
-      this.ts.scale
+      this.ts.scale,
+      'left'
     )
     const pointerY = handleGetCurrentPoint(
       this.targetElement,
       event.clientY,
-      this.ts.scale
+      this.ts.scale,
+      'top'
     )
     let delta = -event.deltaY
     if (this.ts.scale === this.maxScale && delta > 0) {
@@ -180,11 +182,7 @@ class ControlPosition {
     this.ts.translate.x += -pointerX * m * 2 + beforeTargetSize.w * m
     this.ts.translate.y += -pointerY * m * 2 + beforeTargetSize.h * m
     this.setTransform()
-    if (this.eventElement) {
-      this.eventElement.onwheel = func
-    } else {
-      this.targetElement.onwheel = func
-    }
+    eventTarget.onwheel = func
   }
 }
 export default ControlPosition

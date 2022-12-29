@@ -11,10 +11,11 @@ export const isTransformValues = (value: any): value is TRANSFORM_VALUES => {
 export const handleGetCurrentPoint = (
   targetElement: HTMLElement,
   point: number,
-  scale: number
+  scale: number,
+  type: 'left' | 'top'
 ) => {
   const rec = targetElement.getBoundingClientRect()
-  return (point - rec.left) / scale
+  return (point - rec[type]) / scale
 }
 export const handleGetBeforeTargetSize = (
   targetElement: HTMLElement,
@@ -43,14 +44,14 @@ export const handleGetRectSize = (
   option: {
     type?: 'inner' | 'outer'
     threshold?: number
+    areaElement?: HTMLElement
   } = {
     type: 'inner',
     threshold: 0,
-  },
-  eventElement?: HTMLElement
+  }
 ) => {
-  let bound = eventElement
-    ? eventElement.getBoundingClientRect()
+  let bound = option.areaElement
+    ? option.areaElement.getBoundingClientRect()
     : document.body.getBoundingClientRect()
   let targetBound = targetElement.getBoundingClientRect()
 
@@ -74,7 +75,7 @@ export const handleCheckBoxLimit = (
   targetElement: HTMLElement,
   currentPosition: { x: number; y: number },
   type: 'inner' | 'outer',
-  eventElement?: HTMLElement
+  areaElement?: HTMLElement
 ) => {
   let { x, y } = currentPosition
   let outOfBox = {
@@ -87,11 +88,11 @@ export const handleCheckBoxLimit = (
       bottom: false,
     },
   }
-  const { maxSize } = handleGetRectSize(
-    targetElement,
-    { type, threshold: 0 },
-    eventElement
-  )
+  const { maxSize } = handleGetRectSize(targetElement, {
+    type,
+    threshold: 0,
+    areaElement,
+  })
   const xPosition: 'left' | 'right' = x < 0 ? 'left' : 'right'
   const yPosition: 'top' | 'bottom' = y < 0 ? 'top' : 'bottom'
   if (Math.abs(x) > maxSize.x) {

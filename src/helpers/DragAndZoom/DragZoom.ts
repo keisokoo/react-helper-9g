@@ -5,7 +5,7 @@ class DragZoom extends Drag {
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
     this.fireOn(event)
-    const eventTarget = this.eventElement ?? this.targetElement
+    const eventTarget = event.currentTarget! as HTMLElement
     if (isTouchEvent(event)) {
       eventTarget.addEventListener('touchmove', this.onMove, { passive: true })
       eventTarget.addEventListener('touchend', this.onEnd)
@@ -37,7 +37,7 @@ class DragZoom extends Drag {
     }
   }
   private onEnd = (event: TouchEvent | MouseEvent) => {
-    const eventTarget = this.eventElement ?? this.targetElement
+    const eventTarget = event.currentTarget! as HTMLElement
     if (isTouchEvent(event)) {
       eventTarget.removeEventListener('touchmove', this.onMove)
       eventTarget.removeEventListener('touchend', this.onEnd)

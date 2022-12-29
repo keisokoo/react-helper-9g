@@ -1,6 +1,6 @@
 import styled from '@emotion/styled/macro'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
-import DragZoom from './helpers/DragAndZoom/DragZoom'
+import DragOrPinchZoom from './helpers/DragAndZoom/DragOrPinchZoom'
 const Container = styled.div`
   width: 100%;
   height: 100%;
@@ -27,6 +27,13 @@ const Target = styled.div`
   width: 100px;
   height: 200px;
   background-color: #ccc;
+  h1 {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 16px;
+    background-color: #ffff00;
+    margin: 0 auto;
+  }
 `
 const RotateTestButton = styled.button`
   position: fixed;
@@ -44,9 +51,10 @@ function App() {
   const boxRef = useRef() as MutableRefObject<HTMLDivElement>
 
   const [rotation, set_rotation] = useState<number>(0)
-  const [ctr, set_ctr] = useState<DragZoom>()
+  const [ctr, set_ctr] = useState<DragOrPinchZoom>()
   useEffect(() => {
-    const cc: DragZoom = new DragZoom(boxRef.current, dragRef.current, {
+    const cc: DragOrPinchZoom = new DragOrPinchZoom(boxRef.current, {
+      areaElement: dragRef.current,
       restrictPosition: (currentXY, el, outOfBox) => {
         return cc.areaRestrictions(currentXY, {
           type: 'outer',
@@ -62,10 +70,13 @@ function App() {
         ref={dragRef}
         onWheel={ctr?.onWheel}
         tabIndex={0}
-        onTouchStart={ctr?.on}
-        onMouseDown={ctr?.on}
+        onTouchStart={ctr?.onPinchStart}
       >
-        <Target ref={boxRef}>h({rotation})</Target>
+        <Target ref={boxRef}>
+          <h1 onMouseDown={ctr?.onDragStart} onTouchStart={ctr?.onDragStart}>
+            h({rotation})
+          </h1>
+        </Target>
       </Wrap>
       <RotateTestButton
         onClick={(e) => {
