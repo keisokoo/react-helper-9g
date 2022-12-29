@@ -61,8 +61,8 @@ function App() {
       restrictElement: headerRef.current,
       restrictPosition: (currentXY, el, outOfBox) => {
         return cc.areaRestrictions(currentXY, {
-          type: 'inner',
-          threshold: 0,
+          type: 'outer',
+          threshold: -16 * cc.ts.scale,
         })
       },
     })
