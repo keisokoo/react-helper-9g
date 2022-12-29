@@ -41,10 +41,12 @@ class Drag extends ControlPosition {
   dragOn = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
+    event.stopPropagation()
     const currentTarget = event.currentTarget! as HTMLElement
     currentTarget.style.userSelect = 'none'
     this.ts = this.getPosition()
     cancelAnimationFrame(this.inertiaAnimationFrame)
+    if (this.beforeFire) this.beforeFire()
     this.isDrag = true
     this.isScale = false
     this.startPoint = {
@@ -60,9 +62,11 @@ class Drag extends ControlPosition {
   pinchOn = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
+    event.stopPropagation()
     this.ts = this.getPosition()
     cancelAnimationFrame(this.inertiaAnimationFrame)
     if (isTouchEvent(event) && event.touches.length === 2) {
+      if (this.beforeFire) this.beforeFire()
       this.isDrag = false
       this.isScale = true
       // 터치 시작시 두손가락 거리
@@ -172,6 +176,7 @@ class Drag extends ControlPosition {
   fireEnd = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
   ) => {
+    event.stopPropagation()
     const currentTarget = event.currentTarget! as HTMLElement
     currentTarget.style.userSelect = ''
     if (this.dragged && this.isDrag) {
@@ -197,6 +202,8 @@ class Drag extends ControlPosition {
       Math.floor(Math.abs(this.velocity.y)) !== 0
     ) {
       this.inertiaAnimationFrame = requestAnimationFrame(this.updateInertia)
+    } else {
+      if (this.afterFire) this.afterFire()
     }
   }
   dragFinish = () => {
@@ -207,6 +214,8 @@ class Drag extends ControlPosition {
 
     if (this.velocity.x !== 0 || this.velocity.y !== 0) {
       this.inertiaAnimationFrame = requestAnimationFrame(this.updateInertia)
+    } else {
+      if (this.afterFire) this.afterFire()
     }
   }
 }

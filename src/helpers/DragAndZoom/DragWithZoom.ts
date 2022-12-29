@@ -16,7 +16,8 @@ class DragZoom extends Drag {
     }
   }
   private onMove = (event: TouchEvent | MouseEvent) => {
-    // 드래그 이벤트 (현재 없음)
+    event.stopPropagation()
+    // 드래그 이벤트
     if (
       this.isDrag &&
       ((isTouchEvent(event) && event.touches.length === 1) ||

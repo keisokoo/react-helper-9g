@@ -26,6 +26,10 @@ class ControlPosition {
   ) => XY
   areaElement?: HTMLElement
   restrictElement?: HTMLElement
+  beforeFire?: () => void
+  afterFire?: () => void
+  beforeUpdate?: (ts: TRANSFORM_VALUES) => void
+  afterUpdate?: (ts: TRANSFORM_VALUES) => void
   constructor(
     public targetElement: HTMLElement,
     configs?: {
@@ -34,6 +38,10 @@ class ControlPosition {
       factor?: number
       minScale?: number
       maxScale?: number
+      beforeFire?: () => void
+      afterFire?: () => void
+      beforeUpdate?: (ts: TRANSFORM_VALUES) => void
+      afterUpdate?: (ts: TRANSFORM_VALUES) => void
       restrictPosition?: (
         current: XY,
         targetEl: DOMRect,
@@ -41,7 +49,11 @@ class ControlPosition {
       ) => XY
     }
   ) {
-    if (configs?.restrictElement) this.restrictElement = configs.restrictElement
+    if (configs?.beforeUpdate) this.beforeUpdate = configs.beforeUpdate
+    if (configs?.afterUpdate) this.afterUpdate = configs.afterUpdate
+    if (configs?.beforeFire) this.beforeFire = configs.beforeFire
+    if (configs?.afterFire) this.afterFire = configs.afterFire
+    if (configs?.areaElement) this.areaElement = configs.areaElement
     if (configs?.areaElement) this.areaElement = configs.areaElement
     if (configs?.factor) this.factor = configs.factor
     if (configs?.minScale) this.minScale = configs.minScale
@@ -145,12 +157,14 @@ class ControlPosition {
   }
   setTransform = () => {
     window.requestAnimationFrame(() => {
+      if (this.beforeUpdate) this.beforeUpdate(this.ts)
       this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
       const restricted = this.restrictXY(this.ts.translate)
       if (this.compareXY(restricted, this.ts.translate)) {
         this.ts.translate = restricted
         this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
       }
+      if (this.afterUpdate) this.afterUpdate(this.ts)
     })
   }
   toggleRotation = (value: number) => {
@@ -159,6 +173,7 @@ class ControlPosition {
   }
   onWheel = (event: React.WheelEvent | WheelEvent) => {
     if (!this.targetElement) return
+    if (this.beforeFire) this.beforeFire()
     this.ts = this.getPosition()
 
     const eventTarget = event.currentTarget! as HTMLElement
@@ -205,6 +220,7 @@ class ControlPosition {
     this.ts.translate.x += -pointerX * m * 2 + beforeTargetSize.w * m
     this.ts.translate.y += -pointerY * m * 2 + beforeTargetSize.h * m
     this.setTransform()
+    if (this.afterFire) this.afterFire()
     eventTarget.onwheel = func
   }
 }
