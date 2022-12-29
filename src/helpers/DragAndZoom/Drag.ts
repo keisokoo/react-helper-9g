@@ -33,6 +33,38 @@ class Drag extends ControlPosition {
 
     return value
   }
+  isTouchEvent = (event: any): event is TouchEvent | React.TouchEvent => {
+    return 'touches' in event
+  }
+  fireOn = (
+    event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
+  ) => {
+    this.ts = this.getPosition()
+    cancelAnimationFrame(this.inertiaAnimationFrame)
+    if (this.isTouchEvent(event) && event.touches.length === 2) {
+      this.isDrag = false
+      this.isScale = true
+      // 터치 시작시 두손가락 거리
+      this.startDist = Math.hypot(
+        event.touches[0].pageX - event.touches[1].pageX,
+        event.touches[0].pageY - event.touches[1].pageY
+      )
+      // 터치 시작시 스케일
+      this.startScale = this.ts.scale
+    } else {
+      this.isDrag = true
+      this.isScale = false
+      this.startPoint = {
+        x: this.isTouchEvent(event) ? event.touches[0].pageX : event.pageX,
+        y: this.isTouchEvent(event) ? event.touches[0].pageY : event.pageY,
+      }
+      this.previousPosition = {
+        x: this.ts.translate.x,
+        y: this.ts.translate.y,
+      }
+      this.velocity = { x: 0, y: 0 }
+    }
+  }
   fireDrag = (x: number, y: number) => {
     if (!this.targetElement) return
     // 중첩 실행 문제 (성능) 해결 :: 굳이 할 필요없음.
@@ -133,6 +165,17 @@ class Drag extends ControlPosition {
     } else {
       this.targetElement.ontouchmove = func
     }
+  }
+  fireEnd = (
+    event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
+  ) => {
+    cancelAnimationFrame(this.inertiaAnimationFrame)
+    if (this.dragged && this.isDrag) {
+      this.dragFinish()
+    }
+    this.dragged = false
+    this.isDrag = false
+    this.isScale = false
   }
   private updateInertia = () => {
     if (!this.targetElement) return
