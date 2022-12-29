@@ -7,14 +7,18 @@ export type TRANSFORM_VALUES = {
   rotate: number
   translate: XY
 }
+type OutValue = {
+  out: boolean
+  value: number
+}
 export type OutOfBox = {
   x: {
-    left: boolean
-    right: boolean
+    left: OutValue
+    right: OutValue
   }
   y: {
-    top: boolean
-    bottom: boolean
+    top: OutValue
+    bottom: OutValue
   }
 }
 export type OutOfBoxAll = {

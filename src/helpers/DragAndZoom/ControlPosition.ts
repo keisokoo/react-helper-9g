@@ -144,12 +144,14 @@ class ControlPosition {
     return one.x !== two.x || one.y !== two.y
   }
   setTransform = () => {
-    this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
-    const restricted = this.restrictXY(this.ts.translate)
-    if (this.compareXY(restricted, this.ts.translate)) {
-      this.ts.translate = restricted
+    window.requestAnimationFrame(() => {
       this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
-    }
+      const restricted = this.restrictXY(this.ts.translate)
+      if (this.compareXY(restricted, this.ts.translate)) {
+        this.ts.translate = restricted
+        this.targetElement.style.transform = `translate(${this.ts.translate.x}px,${this.ts.translate.y}px) scale(${this.ts.scale}) rotate(${this.ts.rotate}deg)`
+      }
+    })
   }
   toggleRotation = (value: number) => {
     value = Math.abs(value)

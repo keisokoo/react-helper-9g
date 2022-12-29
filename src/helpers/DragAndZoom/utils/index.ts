@@ -1,4 +1,4 @@
-import { MAX_SIZE, TRANSFORM_VALUES, XY } from '../types'
+import { MAX_SIZE, OutOfBox, TRANSFORM_VALUES, XY } from '../types'
 
 export const isTransformValues = (value: any): value is TRANSFORM_VALUES => {
   return (
@@ -119,29 +119,41 @@ export const handleCheckBoxLimit = (
   type?: string
 ) => {
   let { x, y } = currentPosition
-  let outOfBox = {
-    x: {
-      left: false,
-      right: false,
-    },
-    y: {
-      top: false,
-      bottom: false,
-    },
-  }
   const xDiffOffset = maxSize.offset.right - maxSize.offset.left
   const yDiffOffset = maxSize.offset.bottom - maxSize.offset.top
+  let outOfBox: OutOfBox = {
+    x: {
+      left: {
+        out: false,
+        value: -maxSize.x + xDiffOffset,
+      },
+      right: {
+        out: false,
+        value: maxSize.x + xDiffOffset,
+      },
+    },
+    y: {
+      top: {
+        out: false,
+        value: -maxSize.y + yDiffOffset,
+      },
+      bottom: {
+        out: false,
+        value: maxSize.y + yDiffOffset,
+      },
+    },
+  }
   if (x < -maxSize.x + xDiffOffset) {
-    outOfBox.x['left'] = true
+    outOfBox.x['left'].out = true
   }
   if (x > maxSize.x + xDiffOffset) {
-    outOfBox.x['right'] = true
+    outOfBox.x['right'].out = true
   }
   if (y < -maxSize.y + yDiffOffset) {
-    outOfBox.y['top'] = true
+    outOfBox.y['top'].out = true
   }
   if (y > maxSize.y + yDiffOffset) {
-    outOfBox.y['bottom'] = true
+    outOfBox.y['bottom'].out = true
   }
   return outOfBox
 }

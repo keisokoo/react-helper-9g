@@ -174,7 +174,6 @@ class Drag extends ControlPosition {
   ) => {
     const currentTarget = event.currentTarget! as HTMLElement
     currentTarget.style.userSelect = ''
-    cancelAnimationFrame(this.inertiaAnimationFrame)
     if (this.dragged && this.isDrag) {
       this.dragFinish()
     }

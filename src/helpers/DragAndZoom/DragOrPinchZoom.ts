@@ -39,6 +39,7 @@ class DragOrPinchZoom extends Drag {
   private onDragEnd = (event: TouchEvent | MouseEvent) => {
     event.stopPropagation()
     const eventTarget = event.currentTarget! as HTMLElement
+    this.fireEnd(event)
     if (isTouchEvent(event)) {
       eventTarget.removeEventListener('touchmove', this.onDragMove)
       eventTarget.removeEventListener('touchend', this.onDragEnd)
@@ -47,7 +48,6 @@ class DragOrPinchZoom extends Drag {
       eventTarget.removeEventListener('mouseup', this.onDragEnd)
       eventTarget.removeEventListener('mouseleave', this.onDragEnd)
     }
-    this.fireEnd(event)
   }
   onPinchStart = (
     event: TouchEvent | MouseEvent | React.TouchEvent | React.MouseEvent
