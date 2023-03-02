@@ -1,6 +1,7 @@
 import styled from '@emotion/styled/macro'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import DragOrPinchZoom from './helpers/DragAndZoom/DragOrPinchZoom'
+import { updateObjectArrayItemById } from './helpers/handleArrayState'
 const Container = styled.div`
   width: 100%;
   height: 100%;
@@ -53,6 +54,12 @@ const Target = styled.div`
   }
 `
 
+let b = [
+  { id: 1, item: 'a' },
+  { id: 2, item: 'b' },
+  { id: 3, item: 'c' },
+]
+console.log('t', updateObjectArrayItemById(b, 2, { item: 'c' }))
 const RotateTestButton = styled.button`
   position: fixed;
   right: 32px;
