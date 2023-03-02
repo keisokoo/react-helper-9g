@@ -52,6 +52,7 @@ const Target = styled.div`
     margin: 0px auto;
   }
 `
+
 const RotateTestButton = styled.button`
   position: fixed;
   right: 32px;
