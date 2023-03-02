@@ -23,9 +23,7 @@ export const updateObjectArrayItemAtIndex = <T extends object>(
 export const updateObjectArrayItemById = <T extends { id: number | string }>(
   arr: T[],
   id: number | string,
-  updateItem:
-    | ((value: T) => Partial<Exclude<T, 'id'>>)
-    | Partial<Exclude<T, 'id'>>
+  updateItem: ((value: T) => Partial<T>) | Partial<T>
 ) => {
   const index = arr.findIndex((item) => item.id === id)
   if (index < 0) return arr
