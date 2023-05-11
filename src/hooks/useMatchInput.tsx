@@ -1,11 +1,22 @@
 import { clone, isEqual, set } from 'lodash-es'
 import { useCallback, useMemo, useState } from 'react'
 
-type Many<T> = T | ReadonlyArray<T>
-type PropertyName = string | number | symbol
-type PropertyPath = Many<PropertyName>
+type DeepKeyOf<T> = T extends object
+  ? { [K in Extract<keyof T, string>]: K | `${K}.${DeepKeyOf<T[K]>}` }[Extract<
+      keyof T,
+      string
+    >]
+  : never
 
-type HandleInputFunction<T> = <K extends keyof T>(
+type ValueOfDeepKey<T, K extends string> = K extends `${infer K1}.${infer K2}`
+  ? K1 extends keyof T
+    ? ValueOfDeepKey<T[K1], K2>
+    : never
+  : K extends keyof T
+  ? T[K]
+  : never
+
+export type HandleInputFunction<T> = <K extends keyof T>(
   target: K,
   value: T[K] | ((inputs: T) => T[K]),
   callBack?: ((next: T) => T) | undefined
@@ -16,23 +27,40 @@ export interface MatchInputProps<T> {
   isMatched: boolean
   existInputs: T
   handleInput: HandleInputFunction<T>
-  handleValues: (next: T) => void
-  pickAndUpdate: (target: PropertyPath, value: any) => void
+  handleValues: (next: T | ((prev: T) => T)) => void
+  pickAndUpdate: <K extends DeepKeyOf<T>>(
+    target: K,
+    value: ValueOfDeepKey<T, K>
+  ) => void
   fetchInit: (value: T) => void
   returnToOriginal: () => void
   restoreValues: () => void
+  InputAttributes: (inputsKeyName: keyof T) => void
 }
 
 function isFunction<T>(x: any): x is (value: T) => void {
   return x !== undefined && typeof x === 'function' && x instanceof Function
 }
+
 const useMatchInput = <T extends object>(initialValue: T) => {
   const [inputs, set_inputs] = useState<T>(clone(initialValue))
   const [existInputs, set_existInputs] = useState<T>(clone(initialValue))
 
-  const fetchInit = useCallback((value: T) => {
-    set_inputs(value)
-    set_existInputs(clone(value))
+  const fetchInit = useCallback((next: T | ((prev: T) => T)) => {
+    if (typeof next === 'function') {
+      set_inputs((prev) => next(prev))
+      set_existInputs((prev) => next(prev))
+    } else {
+      set_inputs(next)
+      set_existInputs(clone(next))
+    }
+  }, [])
+
+  const syncCurrentValue = useCallback(() => {
+    set_inputs((prev) => {
+      set_existInputs(clone(prev))
+      return prev
+    })
   }, [])
 
   const restoreValues = useCallback(() => {
@@ -40,12 +68,29 @@ const useMatchInput = <T extends object>(initialValue: T) => {
     set_existInputs(clone(initialValue))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const handleValues = useCallback((next: T) => {
-    set_inputs(next)
+
+  const InputAttributes = (inputsKeyName: keyof T) => {
+    return {
+      value: inputs[inputsKeyName],
+      handleValue: (value: T[keyof T]) => handleInput(inputsKeyName, value),
+    }
+  }
+
+  const handleValues = useCallback((next: T | ((prev: T) => T)) => {
+    if (typeof next === 'function') {
+      set_inputs((prev) => next(prev))
+    } else {
+      set_inputs(next)
+    }
   }, [])
-  const pickAndUpdate = useCallback(<K,>(target: PropertyPath, value: K) => {
-    set_inputs((prev) => clone(set(prev, target, value)))
-  }, [])
+
+  const pickAndUpdate = useCallback(
+    <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K>) => {
+      set_inputs((prev) => clone(set(prev, target, value)))
+    },
+    []
+  )
+
   const handleInput: HandleInputFunction<T> = useCallback(
     async (target, value, callBack) => {
       set_inputs((prev) => {
@@ -64,9 +109,11 @@ const useMatchInput = <T extends object>(initialValue: T) => {
     },
     []
   )
+
   const returnToOriginal = () => {
     set_inputs(clone(existInputs))
   }
+
   const isMatched = useMemo(() => {
     return isEqual(existInputs, inputs)
   }, [inputs, existInputs])
@@ -75,12 +122,14 @@ const useMatchInput = <T extends object>(initialValue: T) => {
     inputs,
     existInputs,
     isMatched,
+    syncCurrentValue,
     pickAndUpdate,
     fetchInit,
     handleValues,
     handleInput,
     returnToOriginal,
     restoreValues,
-  }
+    InputAttributes,
+  } as const
 }
 export default useMatchInput
