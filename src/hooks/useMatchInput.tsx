@@ -1,4 +1,4 @@
-import { clone, isEqual, set } from 'lodash-es'
+import { cloneDeep, isEqual, set } from 'lodash-es'
 import { useCallback, useMemo, useState } from 'react'
 
 type DeepKeyOf<T> = T extends object
@@ -43,29 +43,30 @@ function isFunction<T>(x: any): x is (value: T) => void {
 }
 
 const useMatchInput = <T extends object>(initialValue: T) => {
-  const [inputs, set_inputs] = useState<T>(clone(initialValue))
-  const [existInputs, set_existInputs] = useState<T>(clone(initialValue))
-
+  const [inputs, set_inputs] = useState<T>(cloneDeep({ ...initialValue }))
+  const [existInputs, set_existInputs] = useState<T>(
+    cloneDeep({ ...initialValue })
+  )
   const fetchInit = useCallback((next: T | ((prev: T) => T)) => {
     if (typeof next === 'function') {
       set_inputs((prev) => next(prev))
       set_existInputs((prev) => next(prev))
     } else {
       set_inputs(next)
-      set_existInputs(clone(next))
+      set_existInputs(cloneDeep(next))
     }
   }, [])
 
   const syncCurrentValue = useCallback(() => {
     set_inputs((prev) => {
-      set_existInputs(clone(prev))
+      set_existInputs(cloneDeep(prev))
       return prev
     })
   }, [])
 
   const restoreValues = useCallback(() => {
-    set_inputs(clone(initialValue))
-    set_existInputs(clone(initialValue))
+    set_inputs(cloneDeep(initialValue))
+    set_existInputs(cloneDeep(initialValue))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -86,7 +87,7 @@ const useMatchInput = <T extends object>(initialValue: T) => {
 
   const pickAndUpdate = useCallback(
     <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K>) => {
-      set_inputs((prev) => clone(set(prev, target, value)))
+      set_inputs((prev) => cloneDeep({ ...set(prev, target, value) }))
     },
     []
   )
@@ -110,9 +111,9 @@ const useMatchInput = <T extends object>(initialValue: T) => {
     []
   )
 
-  const returnToOriginal = () => {
-    set_inputs(clone(existInputs))
-  }
+  const returnToOriginal = useCallback(() => {
+    set_inputs(cloneDeep({ ...existInputs }))
+  }, [existInputs])
 
   const isMatched = useMemo(() => {
     return isEqual(existInputs, inputs)
