@@ -227,3 +227,39 @@ export const onInputNumber = (value: string, preValue: string) => {
   if (value.match(numberRegex) || value === '') return value
   return preValue
 }
+
+// 숫자가 10 미만이면 앞에 0을 붙여주는 함수
+export function addZero(num: number) {
+  let numString = String(num)
+  if (num < 10) {
+    numString = '0' + num
+  } else {
+    numString = String(num)
+  }
+  return numString
+}
+
+/**
+ * object keys 를 타입에 맞게 실행
+ *
+ * @template T
+ * @param {T} value
+ * @return {*}  {(keyof T)[]}
+ */
+export const objectKeys = <T extends object, K extends keyof T>(
+  value: T
+): K[] => {
+  return Object.keys(value) as K[]
+}
+
+// 5분 간격으로 HH:MM 배열 만드는 함수
+export function timeArray() {
+  var timeArray = []
+  for (var i = 0; i < 24; i++) {
+    for (var j = 0; j < 60; j += 5) {
+      var time = addZero(i) + ':' + addZero(j)
+      timeArray.push(time)
+    }
+  }
+  return timeArray
+}

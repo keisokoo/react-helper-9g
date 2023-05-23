@@ -1,15 +1,30 @@
 import { SerializedStyles } from '@emotion/react'
 import styled from '@emotion/styled/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { flipObject } from '../helpers/util'
+import { objectKeys } from '../helpers/util'
 
 const DropdownWrap = styled.div``
 const DropdownStyle = {
   Wrap: DropdownWrap,
-  Label: styled.div``,
-  ListWrap: styled.div``,
-  ListInner: styled.div``,
-  Item: styled.div``,
+  Label: styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    label {
+      cursor: pointer;
+    }
+  `,
+  ListWrap: styled.div`
+    padding: 0;
+  `,
+  ListInner: styled.div`
+    height: 80px;
+    overflow-y: auto;
+  `,
+  Item: styled.div`
+    cursor: pointer;
+  `,
   ForCalculateSize: styled.div``,
 }
 export type DivAttributes = React.DetailedHTMLProps<
@@ -18,19 +33,42 @@ export type DivAttributes = React.DetailedHTMLProps<
 >
 
 export type DropdownListType = { [key in string | number]: string | number }
+export type DropdownValue<T> = Partial<T>
 
 export type AdditionalCss = SerializedStyles | string
+export type KeyValueType = {
+  key: string
+  value: string | number
+}
+export type GetDropdownReturnType<T> = {
+  dropdownList: T | null
+  cursor?: string | number | null
+  abortController?: AbortController
+}
+export const isGetDropdownReturnType = <T extends DropdownListType>(
+  value: any
+): value is GetDropdownReturnType<T> => {
+  return value && typeof value === 'object' && 'dropdownList' in value
+}
+
+export type DropdownListPropsType<T extends DropdownListType | string[]> =
+  | T
+  | ((
+      args?: GetDropdownReturnType<T>
+    ) => Promise<T | GetDropdownReturnType<T>> | null)
+  | string[]
 
 export interface DropdownProps<T extends DropdownListType | string[]>
   extends DivAttributes {
+  _value: DropdownValue<T> | null | undefined
+  _list: DropdownListPropsType<T>
+  _emitValue: (value: DropdownValue<T> | null) => void
+
   _css?: AdditionalCss
-  _value?: T[keyof T] | null
-  _list: T | (() => Promise<T> | null) | string[]
   _placeholder?: string
   _disabled?: boolean
   _autoWidth?: boolean
-  _emitValue?: (value: T[keyof T]) => void
-  _parseLabel?: (value: string | number) => string
+  _parseLabel?: (value: DropdownValue<T>) => string
 }
 
 const arrayToStringObject = (list: string[]): { [key in string]: string } => {
@@ -56,10 +94,11 @@ const Dropdown = <T extends DropdownListType>({
   _autoWidth,
   ...props
 }: DropdownProps<T>) => {
-  const [open, set_open] = useState<boolean>(false)
-
+  const [pending, set_pending] = useState<boolean>(false)
+  const [nextQuery, set_nextQuery] = useState<GetDropdownReturnType<T> | null>(
+    null
+  )
   const [currentList, set_currentList] = useState<T | null>(null) // null 이면 pending
-  const [currentLabel, set_currentLabel] = useState<string>('')
 
   useEffect(() => {
     if (!isFunction(_list)) {
@@ -70,11 +109,26 @@ const Dropdown = <T extends DropdownListType>({
   }, [_list])
 
   const getCurrentList = useCallback(
-    async (listByProps: string[] | T | (() => Promise<T> | null)) => {
+    async (
+      listByProps: DropdownListPropsType<T>,
+      callNext?: GetDropdownReturnType<T> | null
+    ) => {
       let currentList: T | null = null
       if (listByProps) {
         if (typeof listByProps === 'function') {
-          currentList = listByProps() ? await listByProps() : null
+          set_pending(true)
+          const listResponse = await listByProps(callNext ?? undefined)
+          if (isGetDropdownReturnType(listResponse)) {
+            currentList = listResponse.dropdownList
+            if (listResponse.cursor) {
+              set_nextQuery(listResponse)
+            } else {
+              set_nextQuery(null)
+            }
+          } else {
+            currentList = listResponse
+          }
+          set_pending(false)
         } else if (listByProps instanceof Array) {
           currentList = listByProps.reduce((prev, curr) => {
             prev[curr] = curr
@@ -84,6 +138,7 @@ const Dropdown = <T extends DropdownListType>({
           currentList = listByProps
         }
       }
+      console.log('currentList', currentList)
       return currentList
     },
     []
@@ -92,34 +147,65 @@ const Dropdown = <T extends DropdownListType>({
   const labelString = useMemo(() => {
     if (_value) {
       if (_parseLabel) {
-        return _parseLabel(String(_value))
+        return _parseLabel(_value)
       } else {
-        return currentList ? String(flipObject(currentList)[_value]) : null
+        return _value
+          ? objectKeys(_value).map((keyName) => _value[keyName])[0]
+          : null
       }
     } else {
-      return _placeholder
+      return _placeholder ?? '선택'
     }
-  }, [_value, _parseLabel, currentList, _placeholder])
+  }, [_value, _parseLabel, _placeholder])
 
   return (
     <>
       <DropdownStyle.Wrap>
         <DropdownStyle.Label
           onClick={async () => {
-            if (isFunction(_list)) {
+            if (currentList) {
               set_currentList(null)
-              const list = await _list()
-              list && set_currentList(list)
+              return
             }
-            set_open((prev) => !prev)
+            const list = await getCurrentList(_list)
+            list && set_currentList(list)
           }}
         >
           <label>{labelString}</label>
-          <div></div>
+          <div>{pending ? 'Loading...' : ''}</div>
         </DropdownStyle.Label>
-        {open && (
+        {currentList && (
           <DropdownStyle.ListWrap>
-            <DropdownStyle.ListInner></DropdownStyle.ListInner>
+            <DropdownStyle.ListInner
+              onScroll={async (e) => {
+                let scrollingElement = e.currentTarget
+                if (!nextQuery) return
+                if (
+                  scrollingElement.scrollHeight ===
+                  scrollingElement.clientHeight + scrollingElement.scrollTop
+                ) {
+                  const list = await getCurrentList(_list, nextQuery)
+                  list && set_currentList(list)
+                }
+              }}
+            >
+              {objectKeys(currentList).map((item, index) => {
+                return (
+                  <DropdownStyle.Item
+                    key={String(currentList[item]) + String(index)}
+                    onClick={() => {
+                      const partialValue = {
+                        [item]: currentList[item],
+                      } as DropdownValue<T>
+                      _emitValue(partialValue)
+                      set_currentList(null)
+                    }}
+                  >
+                    {currentList[item]}
+                  </DropdownStyle.Item>
+                )
+              })}
+            </DropdownStyle.ListInner>
           </DropdownStyle.ListWrap>
         )}
       </DropdownStyle.Wrap>
