@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 import DragSample from './components/DragSample'
 import DropdownSample from './components/DropdownSample'
+import StepperSample from './components/StepperSample'
 import Test from './Test'
 const NavComponent = () => {
   const navs = [
@@ -18,6 +19,9 @@ const NavComponent = () => {
     },
     {
       path: '/dropdown-sample',
+    },
+    {
+      path: '/stepper-sample',
     },
     {
       path: '/test',
@@ -54,6 +58,10 @@ export const routes = [
   {
     path: '/dropdown-sample',
     element: <DropdownSample />,
+  },
+  {
+    path: '/stepper-sample',
+    element: <StepperSample />,
   },
   {
     path: '/test',

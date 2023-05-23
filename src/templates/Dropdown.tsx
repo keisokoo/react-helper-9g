@@ -7,6 +7,7 @@ const DropdownWrap = styled.div``
 const DropdownStyle = {
   Wrap: DropdownWrap,
   Label: styled.div`
+    user-select: none;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -24,6 +25,7 @@ const DropdownStyle = {
   `,
   Item: styled.div`
     cursor: pointer;
+    user-select: none;
   `,
   ForCalculateSize: styled.div``,
 }

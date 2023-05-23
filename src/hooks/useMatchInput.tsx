@@ -1,4 +1,4 @@
-import { cloneDeep, isEqual, set } from 'lodash-es'
+import { cloneDeep, get, isEqual, set } from 'lodash-es'
 import { useCallback, useMemo, useState } from 'react'
 
 type DeepKeyOf<T> = T extends object
@@ -36,6 +36,7 @@ export interface MatchInputProps<T> {
   returnToOriginal: () => void
   restoreValues: () => void
   InputAttributes: (inputsKeyName: keyof T) => void
+  restoreByKeyNames: (keyNames: (keyof T)[]) => void
 }
 
 function isFunction<T>(x: any): x is (value: T) => void {
@@ -67,6 +68,18 @@ const useMatchInput = <T extends object>(initialValue: T) => {
   const restoreValues = useCallback(() => {
     set_inputs(cloneDeep(initialValue))
     set_existInputs(cloneDeep(initialValue))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const restoreByKeyNames = useCallback((keyNames: (keyof T)[]) => {
+    set_inputs((prev) => {
+      let cloned = cloneDeep(prev)
+      const partialInitial = keyNames.reduce((prev, keyName) => {
+        prev[keyName] = get(cloneDeep({ ...initialValue }), keyName)
+        return prev
+      }, {} as Partial<T>)
+      return { ...cloned, ...partialInitial }
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -131,6 +144,7 @@ const useMatchInput = <T extends object>(initialValue: T) => {
     returnToOriginal,
     restoreValues,
     InputAttributes,
+    restoreByKeyNames,
   } as const
 }
 export default useMatchInput
