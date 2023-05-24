@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 import DragSample from './components/DragSample'
 import DropdownSample from './components/DropdownSample'
+import LiveSearchSample from './components/LiveSearchSample'
 import StepperSample from './components/StepperSample'
 import Test from './Test'
 const NavComponent = () => {
@@ -22,6 +23,9 @@ const NavComponent = () => {
     },
     {
       path: '/stepper-sample',
+    },
+    {
+      path: '/live-search-sample',
     },
     {
       path: '/test',
@@ -62,6 +66,10 @@ export const routes = [
   {
     path: '/stepper-sample',
     element: <StepperSample />,
+  },
+  {
+    path: '/live-search-sample',
+    element: <LiveSearchSample />,
   },
   {
     path: '/test',

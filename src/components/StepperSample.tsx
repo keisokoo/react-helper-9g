@@ -1,5 +1,5 @@
 import styled from '@emotion/styled/macro'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useStepper } from '../hooks/useStepper'
 
 const StepperSampleWrap = styled.div``
@@ -8,7 +8,7 @@ interface StepperSampleProps {}
 
 const initialValues = {
   hello: 'world',
-  a: 1,
+  a: 1 as null | number,
   b: {
     c: '',
     d: 1,
@@ -21,10 +21,10 @@ const initialValues = {
 const StepperSample = ({ ...props }: StepperSampleProps) => {
   const {
     currentStep,
-    setCurrentStep,
-    allSteps,
     matchInputs,
     stepsInputs,
+    validSteps,
+    validAllSteps,
     prevStep,
     nextStep,
   } = useStepper(
@@ -36,40 +36,52 @@ const StepperSample = ({ ...props }: StepperSampleProps) => {
     },
     {
       restoreWhenPrevButtonClicked: true,
+      customValidations: {
+        stepOne: {
+          hello: (value) => {
+            return value === 'world'
+          },
+        },
+        stepTwo: {
+          b: (value) => {
+            return !!value.c && value.d > 0
+          },
+          e: (value) => {
+            return value === '2'
+          },
+        },
+      },
+      optionalValue: ['f'],
     }
   )
-  useEffect(() => {
-    console.log('stepsInputs', stepsInputs)
-  }, [stepsInputs])
+
   const [result, set_result] = useState<string>('')
   return (
     <>
       <StepperSampleWrap>
         <div>{currentStep}</div>
         <div>
-          {allSteps.map((step) => {
-            return (
-              <button
-                key={step}
-                onClick={() => {
-                  setCurrentStep(step)
-                }}
-              >
-                {step}
-              </button>
-            )
-          })}
-        </div>
-        <div>
           {currentStep === 'stepOne' && (
             <div>
-              <div>{stepsInputs[currentStep].hello}</div>
               <input
                 value={matchInputs.inputs.hello}
+                placeholder="must be world"
                 onChange={(e) => {
                   matchInputs.handleInput('hello', e.target.value)
                 }}
               />
+              <input
+                type="number"
+                value={matchInputs.inputs.a ?? ''}
+                placeholder="must be not empty"
+                onChange={(e) => {
+                  matchInputs.handleInput(
+                    'a',
+                    e.target.value ? Number(e.target.value) : null
+                  )
+                }}
+              />
+              <div>{stepsInputs[currentStep].hello}</div>
             </div>
           )}
           {currentStep === 'stepTwo' && (
@@ -77,8 +89,16 @@ const StepperSample = ({ ...props }: StepperSampleProps) => {
               <div>{stepsInputs[currentStep].b.c}</div>
               <input
                 value={matchInputs.inputs.b.c}
+                placeholder="must be not empty"
                 onChange={(e) => {
                   matchInputs.pickAndUpdate('b.c', e.target.value)
+                }}
+              />
+              <input
+                value={matchInputs.inputs.e}
+                placeholder="must be 2"
+                onChange={(e) => {
+                  matchInputs.pickAndUpdate('e', e.target.value)
                 }}
               />
             </div>
@@ -88,19 +108,35 @@ const StepperSample = ({ ...props }: StepperSampleProps) => {
               <div>{stepsInputs[currentStep].f}</div>
               <input
                 value={matchInputs.inputs.f}
+                placeholder="must be not empty"
                 onChange={(e) => {
                   matchInputs.handleInput('f', e.target.value)
                 }}
               />
+              <button
+                onClick={() => {
+                  matchInputs.handleInput('g', !matchInputs.inputs.g)
+                }}
+              >
+                {matchInputs.inputs.g ? 'true' : 'false'}
+              </button>
             </div>
           )}
         </div>
         <div>
-          <button onClick={prevStep}>prev</button>
-          <button onClick={nextStep}>next</button>
+          <button disabled={currentStep === 'stepOne'} onClick={prevStep}>
+            prev
+          </button>
+          <button
+            disabled={!validSteps[currentStep] || currentStep === 'stepThree'}
+            onClick={nextStep}
+          >
+            next
+          </button>
         </div>
         <div>
           <button
+            disabled={!validAllSteps}
             onClick={() => {
               set_result(JSON.stringify(matchInputs.inputs))
             }}

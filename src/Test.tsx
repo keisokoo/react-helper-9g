@@ -1,5 +1,5 @@
 import styled from '@emotion/styled/macro'
-import { clone } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import { MutableRefObject, useEffect, useRef } from 'react'
 import { setDetectChangeHandler } from './helpers/setDetectChangeHandler'
 import { useStepper } from './hooks/useStepper'
@@ -12,7 +12,7 @@ const useDetectChangeHandler = <T extends { [key in string]: string }>(
   values: T,
   wrapper: HTMLDivElement
 ) => {
-  const valueRef = useRef(clone(values)) as MutableRefObject<T>
+  const valueRef = useRef(cloneDeep(values)) as MutableRefObject<T>
   const fireFirstRef = useRef() as MutableRefObject<boolean>
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const useDetectChangeHandler = <T extends { [key in string]: string }>(
       fireFirstRef.current = true
       Array.from(wrapper.children).forEach((child) => {
         if (child instanceof HTMLInputElement) {
-          child.value = clone(values)[child.name]
+          child.value = cloneDeep(values)[child.name]
           setDetectChangeHandler(child)
         }
       })
@@ -41,12 +41,13 @@ const useDetectChangeHandler = <T extends { [key in string]: string }>(
       }
     },
     restoreValues: () => {
-      valueRef.current = values
+      valueRef.current = cloneDeep(values)
+      console.log('values', values, wrapper, wrapper?.childElementCount)
       if (wrapper && wrapper.childElementCount > 0) {
         fireFirstRef.current = true
         Array.from(wrapper.children).forEach((child) => {
           if (child instanceof HTMLInputElement) {
-            child.value = clone(values)[child.name]
+            child.value = cloneDeep(values)[child.name]
           }
         })
       }

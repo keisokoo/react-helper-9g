@@ -7,6 +7,13 @@ type KeysMapping<T, K extends { [key: string]: (keyof T)[] }> = {
 }
 type RestoreTypes = 'after' | 'from-current' | 'current-only'
 
+type CustomValidations<
+  T,
+  J extends { [key: string]: (keyof T)[] },
+  K extends keyof J
+> = {
+  [P in J[K][number]]?: (currentValue: T[P]) => boolean
+}
 export function getStepsInputs<T, J extends { [key: string]: (keyof T)[] }>(
   initialValue: T,
   values: J
@@ -23,8 +30,16 @@ export function getStepsInputs<T, J extends { [key: string]: (keyof T)[] }>(
     return prev
   }, {} as KeysMapping<T, J>)
 }
-export type StepperOptions = {
+export type StepperOptions<
+  T extends object,
+  J extends { [key: string]: (keyof T)[] }
+  // K extends keyof J
+> = {
   restoreWhenPrevButtonClicked?: boolean
+  customValidations?: {
+    [P in keyof J]?: CustomValidations<T, J, P>
+  }
+  optionalValue?: (keyof T)[]
 }
 export const useStepper = <
   T extends object,
@@ -33,7 +48,7 @@ export const useStepper = <
 >(
   initialValue: T,
   values: J,
-  configs?: StepperOptions
+  configs?: StepperOptions<T, J>
 ) => {
   const matchInputs = useMatchInput(initialValue)
   const [stepper, set_stepper] = useState<K | null>()
@@ -51,6 +66,74 @@ export const useStepper = <
     let currentStepper = stepper ? stepper : (objectKeys(stepsInputs)[0] as K)
     return currentStepper
   }, [stepper, stepsInputs])
+
+  const checkValidStep = useCallback<
+    (
+      step: K,
+      customValidations?: CustomValidations<T, J, K> | null,
+      optional?: (keyof T)[]
+    ) => boolean
+  >(
+    (step, customValidations, optional) => {
+      let isValid = true
+      let stepInputs = stepsInputs[step]
+      let stepInputsKeyNames = objectKeys(stepInputs)
+      let stepInputsValid = stepInputsKeyNames.every((keyName) => {
+        if (optional && optional.includes(keyName)) return true
+        let value = stepInputs[keyName]
+        if (customValidations && customValidations[keyName]) {
+          return customValidations[keyName]!(value)
+        }
+        const checkValid = Array.isArray(value)
+          ? value.length > 0
+          : typeof value === 'boolean' || typeof value === 'string'
+          ? !!value
+          : value !== undefined && value !== null
+        return checkValid
+      })
+      if (!stepInputsValid) {
+        isValid = false
+      }
+      return isValid
+    },
+    [stepsInputs]
+  )
+
+  // checkValidStep을 이용하여, 각 스테퍼 별로 유효성 검사를 수행하고, 각 각 스테퍼별로 유효성 검사를 수행한 결과를 반환한다.
+  const validSteps = useMemo(
+    () => {
+      let stepsValid: { [P in keyof J]?: boolean } = {}
+      allSteps.forEach((step) => {
+        stepsValid[step] = checkValidStep(
+          step,
+          configs?.customValidations?.[step],
+          configs?.optionalValue
+        )
+      })
+      return stepsValid
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allSteps, checkValidStep]
+  )
+
+  const validAllSteps = useMemo(
+    () => {
+      let isValid = true
+      let allStepsValid = allSteps.every((step) => {
+        return checkValidStep(
+          step,
+          configs?.customValidations?.[step],
+          configs?.optionalValue
+        )
+      })
+      if (!allStepsValid) {
+        isValid = false
+      }
+      return isValid
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allSteps, checkValidStep]
+  )
 
   const callRestoreByKeyNames = useCallback(
     (restoreSteps: K[]) => {
@@ -108,6 +191,9 @@ export const useStepper = <
     allSteps,
     stepsInputs,
     matchInputs,
+    checkValidStep,
+    validSteps,
+    validAllSteps,
     prevStep,
     nextStep,
   }
