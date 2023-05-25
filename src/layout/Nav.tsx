@@ -14,9 +14,9 @@ const Nav = ({ ...props }: NavProps) => {
   return (
     <>
       <NavWrap>
-        {childRoutes.map((route) => {
+        {childRoutes.map((route, routeIndex) => {
           return (
-            <div key={route.path}>
+            <div key={route.path + String(routeIndex)}>
               <button
                 onClick={() => {
                   navigate(route.path ?? '/')

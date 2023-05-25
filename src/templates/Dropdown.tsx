@@ -140,7 +140,6 @@ const Dropdown = <T extends DropdownListType>({
           currentList = listByProps
         }
       }
-      console.log('currentList', currentList)
       return currentList
     },
     []

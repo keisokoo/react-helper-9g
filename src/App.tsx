@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import DragSample from './components/DragSample'
 import DropdownSample from './components/DropdownSample'
+import InfiniteScrollSample from './components/InfiniteScrollSample'
 import LiveSearchSample from './components/LiveSearchSample'
 import StepperSample from './components/StepperSample'
 import Layout from './layout/Layout'
@@ -27,6 +28,10 @@ export const childRoutes = [
   {
     path: '/live-search-sample',
     element: <LiveSearchSample />,
+  },
+  {
+    path: '/list-infinite-sample',
+    element: <InfiniteScrollSample />,
   },
   {
     path: '/test',
