@@ -1,59 +1,16 @@
-import styled from '@emotion/styled'
-import { useEffect } from 'react'
-import {
-  createBrowserRouter,
-  RouterProvider,
-  useNavigate,
-} from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import DragSample from './components/DragSample'
 import DropdownSample from './components/DropdownSample'
 import LiveSearchSample from './components/LiveSearchSample'
 import StepperSample from './components/StepperSample'
+import Layout from './layout/Layout'
+import Main from './Main'
 import Test from './Test'
-const NavComponent = () => {
-  const navs = [
-    {
-      path: '/',
-    },
-    {
-      path: '/drag-sample',
-    },
-    {
-      path: '/dropdown-sample',
-    },
-    {
-      path: '/stepper-sample',
-    },
-    {
-      path: '/live-search-sample',
-    },
-    {
-      path: '/test',
-    },
-  ]
-  const navigate = useNavigate()
-  return (
-    <Nav>
-      {navs.map((route) => {
-        return (
-          <div key={route.path}>
-            <button
-              onClick={() => {
-                navigate(route.path)
-              }}
-            >
-              {route.path}
-            </button>
-          </div>
-        )
-      })}
-    </Nav>
-  )
-}
-export const routes = [
+
+export const childRoutes = [
   {
-    path: '/',
-    element: <NavComponent />,
+    index: true,
+    element: <Main />,
   },
   {
     path: '/drag-sample',
@@ -76,15 +33,14 @@ export const routes = [
     element: <Test />,
   },
 ]
-const Nav = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
+export const routes = [
+  {
+    path: '/',
+    element: <Layout />,
+    children: childRoutes,
+  },
+]
 function RouteComponent() {
-  useEffect(() => {
-    console.log('routes', routes)
-  }, [])
   const router = createBrowserRouter(routes)
   return <RouterProvider router={router}></RouterProvider>
 }
