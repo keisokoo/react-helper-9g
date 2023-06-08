@@ -1,11 +1,16 @@
+import { Provider } from 'react-redux'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import DatePickerSample from './components/DatePickerSample'
 import DragSample from './components/DragSample'
 import DropdownSample from './components/DropdownSample'
 import InfiniteScrollSample from './components/InfiniteScrollSample'
+import LineChartSample from './components/LineChartSample'
 import LiveSearchSample from './components/LiveSearchSample'
+import MatchInputSample from './components/MatchInputSample'
 import StepperSample from './components/StepperSample'
 import Layout from './layout/Layout'
 import Main from './Main'
+import { store } from './redux'
 import Test from './Test'
 
 export const childRoutes = [
@@ -34,6 +39,18 @@ export const childRoutes = [
     element: <InfiniteScrollSample />,
   },
   {
+    path: '/match-input-sample',
+    element: <MatchInputSample />,
+  },
+  {
+    path: '/line-chart-sample',
+    element: <LineChartSample />,
+  },
+  {
+    path: '/date-picker-sample',
+    element: <DatePickerSample />,
+  },
+  {
     path: '/test',
     element: <Test />,
   },
@@ -51,9 +68,9 @@ function RouteComponent() {
 }
 function App() {
   return (
-    <>
+    <Provider store={store}>
       <RouteComponent />
-    </>
+    </Provider>
   )
 }
 

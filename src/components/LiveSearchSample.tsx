@@ -86,10 +86,18 @@ const LiveSearchSample = ({ ...props }: LiveSearchSampleProps) => {
   const valueRef = useRef() as MutableRefObject<string>
   const [selectedUser, set_selectedUser] = useState<User | null>(null)
   const debounceSearch = debounce(async () => {
-    const res = await axios.get<DummyUserResponse>(
-      `https://dummyjson.com/users/search?q=${valueRef.current}`
-    )
-    set_userList(res.data.users)
+    try {
+      if (!valueRef.current) {
+        set_userList(null)
+        return
+      }
+      const res = await axios.get<DummyUserResponse>(
+        `https://dummyjson.com/users/search?q=${valueRef.current}`
+      )
+      set_userList(res.data.users)
+    } catch (error) {
+      set_userList(null)
+    }
   }, 500)
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     valueRef.current = e.target.value
