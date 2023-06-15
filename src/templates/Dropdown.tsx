@@ -1,6 +1,6 @@
 import { SerializedStyles } from '@emotion/react'
 import styled from '@emotion/styled/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { objectKeys } from '../helpers/util'
 
 const DropdownWrap = styled.div``
@@ -102,13 +102,13 @@ const Dropdown = <T extends DropdownListType>({
   )
   const [currentList, set_currentList] = useState<T | null>(null) // null 이면 pending
 
-  useEffect(() => {
-    if (!isFunction(_list)) {
-      set_currentList(
-        _list instanceof Array ? (arrayToStringObject(_list) as T) : _list
-      )
-    }
-  }, [_list])
+  // useEffect(() => {
+  //   if (!isFunction(_list)) {
+  //     set_currentList(
+  //       _list instanceof Array ? (arrayToStringObject(_list) as T) : _list
+  //     )
+  //   }
+  // }, [_list])
 
   const getCurrentList = useCallback(
     async (
