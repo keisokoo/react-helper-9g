@@ -85,7 +85,7 @@ export const useStepper = <
           return customValidations[keyName]!(value)
         }
         const checkValid = Array.isArray(value)
-          ? value.length > 0
+          ? (value as Array<unknown>).length > 0
           : typeof value === 'boolean' || typeof value === 'string'
           ? !!value
           : value !== undefined && value !== null
